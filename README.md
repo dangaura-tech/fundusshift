@@ -9,7 +9,7 @@ Code and supplementary material for:
 
 FundusShift is a source-held-out benchmark of normal (N), diabetic retinopathy (D) and glaucoma (G) colour fundus photographs from fifteen public collections. It evaluates accuracy and reliability (calibration, selective prediction, conformal sets) of fine-tuned, frozen, prompt-based and domain-generalization models under one protocol, with 50 random source rotations. LANTERN is a low-capacity method on a frozen MedSigLIP encoder: between-site nuisance projection, a bag of linear heads that each leave out one source, and fusion with zero-shot text scores.
 
-The supplementary material is [`paper/supplementary.pdf`](paper/supplementary.pdf).
+**Supplementary material (PDF, 24 pages):** [view online](https://github.com/dangaura-tech/fundusshift/blob/main/paper/supplementary.pdf) · [download](https://github.com/dangaura-tech/fundusshift/raw/main/paper/supplementary.pdf)
 
 ## Repository layout
 
