@@ -1,5 +1,7 @@
 # FundusShift and LANTERN
 
+[![DOI](https://zenodo.org/badge/1444002583.svg)](https://doi.org/10.5281/zenodo.23911966)
+
 Code and supplementary material for:
 
 > **FundusShift: Benchmarking Accuracy and Reliability of Fundus Disease Classification at Unseen Sources, and a Low-Capacity Remedy.**
@@ -18,7 +20,7 @@ The supplementary material is [`paper/supplementary.pdf`](paper/supplementary.pd
 | `scripts/` | Download and extraction helpers for the public sources |
 | `baselines/`, `experiments/` | Feature extraction, all baselines, calibration, evaluation, statistics and LANTERN |
 | `results/` | Saved result tables behind every number in the paper (CSV; large tables gzipped) |
-| `paper/make_assets.py` | Rebuilds every table and figure of the paper from `results/` |
+| `paper/make_assets.py`, `paper/make_supp.py` | Rebuild every table and figure of the paper and of the supplementary material from `results/` |
 | `docs/` | Evaluation protocol, datasheet, frozen LANTERN configuration, pretraining-overlap and ethics checks |
 
 ## Installation
@@ -75,7 +77,8 @@ python -m experiments.scope dev --bench $DATA/bench --strata $DATA/strata --zero
 
 **5. Tables and figures**
 ```
-FS_DATA=$DATA python paper/make_assets.py
+FS_DATA=$DATA python paper/make_assets.py   # main paper
+FS_DATA=$DATA python paper/make_supp.py     # supplementary material
 ```
 
 ## Where each result comes from
