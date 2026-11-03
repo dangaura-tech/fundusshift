@@ -15,14 +15,24 @@ NAMES = {"Qwen/Qwen2.5-VL-7B-Instruct": "mllm_qwen25vl", "Kimokcheon/Fundus-R1-7
          "llava-hf/llava-onevision-qwen2-7b-ov-hf": "mllm_llava_ov", "chaoyinshe/llava-med-v1.5-mistral-7b-hf": "mllm_llava_med"}
 
 
-def pooled(out):
+def tensors(out):
+    """Every image-token tensor in a model's get_image_features output, whatever container it comes in."""
+    if torch.is_tensor(out):
+        return [out]
     if isinstance(out, (list, tuple)):
-        out = torch.cat([o.reshape(-1, o.shape[-1]) for o in out])
-    elif hasattr(out, "pooler_output") and out.pooler_output is not None:
-        out = out.pooler_output
-    elif hasattr(out, "last_hidden_state"):
-        out = out.last_hidden_state
-    return out.reshape(-1, out.shape[-1]).float().mean(0)
+        return [t for o in out for t in tensors(o)]
+    for k in ("image_embeds", "last_hidden_state", "pooler_output"):
+        v = getattr(out, k, None)
+        if v is not None:
+            return tensors(v)
+    raise TypeError(f"no tensor in {type(out)}")
+
+
+def pooled(out):
+    ts = [t for t in tensors(out) if t.is_floating_point()]
+    d = max(t.shape[-1] for t in ts)  # the projected image tokens; skips any smaller side output
+    x = torch.cat([t.reshape(-1, t.shape[-1]) for t in ts if t.shape[-1] == d])
+    return x.float().mean(0)
 
 
 def main(argv=None):

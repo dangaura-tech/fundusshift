@@ -341,20 +341,33 @@ seeds = sorted(glob.glob("results/ablation_rotation/seed*_w*.csv"))
 if seeds:
     s0 = pd.concat([pd.read_csv(f_) for f_ in glob.glob("results/ablation_rotation/w*.csv")]).assign(seed=0)
     sx = pd.concat([s0] + [pd.read_csv(f_) for f_ in seeds])
-    sx = sx[(sx.split > 0) & sx.arm.isin(["full", "no_projection", "text_only"])]
+    sx = sx[sx.split > 0]
+    lp0 = pd.read_csv("results/supplement/rotation.csv")
+    lp0 = lp0[(lp0.model == "medsiglip") & (lp0.kind == "full_class") & (lp0.split > 0)].assign(seed=0, arm="lp")
+    lpx = pd.read_csv("results/supplement/rotation_lp_seeds.csv") if Path("results/supplement/rotation_lp_seeds.csv").exists() else lp0.iloc[:0]
+    sx = pd.concat([sx, lp0, lpx[lpx.split > 0].assign(arm="lp")], ignore_index=True)
+    full = sx[sx.arm == "full"].groupby("split").test_bacc.mean()
     rows = []
-    for arm, n in [("full", "LANTERN"), ("no_projection", "without projection"), ("text_only", "text only")]:
+    for arm, n in [("full", "LANTERN"), ("no_projection", "without projection"), ("no_bag", "without bag"), ("no_text", "without text"), ("text_only", "text only"), ("lp", "MedSigLIP linear probe")]:
         q = sx[sx.arm == arm]
         complete = q.groupby("split").seed.nunique()
         q = q[q.split.isin(complete[complete == 3].index)]
+        if not len(q):
+            continue
         per_split = q.groupby("split").test_bacc
-        rows.append(line(n, str(q.split.nunique()), f3(q.test_bacc.mean()), f3(per_split.std().mean()), f3(per_split.mean().std()), f3(q.groupby("split").ece_ts.mean().mean()), f3(q.groupby("split").recall_G.mean().mean())))
-    full = sx[sx.arm == "full"].groupby("split").test_bacc.mean()
-    nop = sx[sx.arm == "no_projection"].groupby("split").test_bacc.mean()
-    common = full.index.intersection(nop.index)
-    rows.append(line("\\multicolumn{7}{l}{Without projection minus LANTERN, seed-averaged: " + f"{(nop[common] - full[common]).mean():+.3f}, higher on {int((nop[common] > full[common]).sum())} of {len(common)} rotations" + "}"))
+        m_ = per_split.mean()
+        common = full.index.intersection(m_.index)
+        d_ = (full[common] - m_[common])
+        tail = "-- & --" if arm == "full" else f"{d_.mean():+.3f} $\\pm$ {d_.std():.3f} & {int((d_ > 0).sum())}/{len(common)}"
+        rows.append(line(n, str(q.split.nunique()), f3(m_.mean()) + " $\\pm$ " + f3(m_.std()), f3(per_split.std().mean()), f3(q.groupby("split").ece_ts.mean().mean()), f3(q.groupby("split").recall_G.mean().mean()), tail))
     write("s6_seeds.tex", rows)
     print("".join(rows))
+ps_ = pd.read_csv("results/review/per_source.csv")
+write("s4_persource_full.tex", [line(r.method if i % 8 == 0 else "", SRC[r.source] + ("$^\\ast$" if "/" not in r.classes else ""), f"{int(r.n):,}", r.classes, f3(r.acc), f3(r.bacc), f3(r.macro_f1), f3(r.ece_ts)) for i, r in enumerate(ps_.itertuples())])
+dl = pd.read_csv("results/review/disease_level.csv")
+write("s4_disease.tex", [line(r.method, "Test" if r.view == "test" else "Ch\\'ak\\d{s}u", r.disease, f3(r.sensitivity), f3(r.specificity), f3(r.ppv), f3(r.auroc)) for r in dl.itertuples()])
+sc_ = pd.read_csv("results/review/scope_subset.csv")
+write("s4_scope.tex", [line(r.method, f3(r.all_test), f3(r.without_single_class), f3(r.multiclass_full_scope)) for r in sc_.itertuples()])
 print("[ok review]")
 sp_ = pd.read_csv("results/review/site_probe.csv")
 write("s6_siteprobe.tex", [line(esc(r.features), r.view, f"{int(r.n):,}", f3(r.disease), f3(r.site_all), f3(r.site_within_N), f3(r.site_within_D)) for r in sp_.itertuples()])

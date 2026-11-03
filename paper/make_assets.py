@@ -1,6 +1,5 @@
-"""Builds every table and figure of the paper from saved results.
-FS_DATA points at the folder holding bench/, runs/ (saved logits) and processed/ (images); figures that need logits or images are skipped without it.
-python paper/make_assets.py   (from the repository root)
+"""Builds every table and figure of the paper from saved results, so no number is typed by hand.
+python paper/make_assets.py   (from the project root)
 """
 import sys
 from pathlib import Path
@@ -421,8 +420,8 @@ write("tab_cert.tex", txt)
 print(txt)
 
 # Ablation on rotations
-ab = pd.concat([pd.read_csv(f_) for f_ in glob.glob("results/ablation_rotation/w*.csv")])
-ab = ab[ab.split > 0]
+ab = pd.concat([pd.read_csv(f_) for f_ in glob.glob("results/ablation_rotation/w*.csv")] + [pd.read_csv(f_) for f_ in glob.glob("results/ablation_rotation/seed*_w*.csv")])
+ab = ab[ab.split > 0].groupby(["split", "arm"]).mean(numeric_only=True).reset_index()  # seed-averaged where three seeds exist
 full = ab[ab.arm == "full"].set_index("split")
 names_ = [("full", "LANTERN (bag + projection + text)"), ("no_projection", "without projection"), ("no_bag", "without bag (one head)"), ("no_text", "without text"), ("single_head", "single head, no projection, no text"), ("text_only", "text only")]
 txt = ""
