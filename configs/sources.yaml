@@ -1,0 +1,646 @@
+# FundusShift — source registry (full inventory incl. non-redistributable sources)
+#
+# Harmonized core task (one label per colour fundus photograph):
+#   N = apparently normal fundus (source explicitly says normal/healthy, or DR grade 0 in a DR-graded set)
+#   D = diabetic-retinopathy-like findings
+#   G = glaucomatous optic neuropathy / glaucoma (incl. "possible glaucoma" only where noted)
+#   A = age-related macular degeneration-like findings
+# Map value meanings: N/D/G/A = harmonized class, IGNORE = token does not affect the label,
+#   EXCLUDE = image leaves the core task. Tokens absent from the map count as OTHER -> excluded.
+#
+# role:   dev        -> train / val / calibration pool
+#         test       -> held-out source (whole source goes to test)
+#         ood_test   -> held-out and reported separately (strong acquisition shift)
+#         exclude    -> listed for completeness, not used (reason given)
+#         restricted -> not publicly downloadable
+# family: acquisition origin. Sources sharing a family must share a side (dev vs test). The audit enforces this.
+#
+# Counts (n_approx) and file layouts are from the dataset papers / release pages and MUST be confirmed
+# after download: build_manifest.py prints the real counts and fails loudly on missing columns.
+
+sources:
+
+# ----------------------------------------------------------------------------------------------- DR (dev)
+- id: eyepacs_kaggle
+  name: EyePACS / Kaggle Diabetic Retinopathy Detection (2015)
+  family: EYEPACS
+  country: USA
+  device: multiple (EyePACS screening network)
+  n_approx: 88702
+  access: Kaggle competition (login + accept rules); labels for test in retinopathy_solution.csv
+  license: Kaggle competition rules (non-commercial research)
+  url: https://www.kaggle.com/c/diabetic-retinopathy-detection
+  role: dev
+  normal_scope: dr_only
+  adapter:
+    type: csv
+    tables:
+      - {file: trainLabels.csv, image_dir: train}
+      - {file: retinopathy_solution.csv, image_dir: test}
+    image_col: image
+    path_template: "{image}.jpeg"
+    label_col: level
+    grade_col: level
+    patient_regex: "^(\\d+)_"
+    eye_regex: "_(left|right)$"
+  label_map: {"0": N, "1": D, "2": D, "3": D, "4": D}
+
+- id: aptos2019
+  name: APTOS 2019 Blindness Detection
+  family: APTOS_ARAVIND
+  country: India
+  device: multiple (Aravind Eye Hospital)
+  n_approx: 3662
+  access: Kaggle competition (only train.csv is labeled)
+  license: Kaggle competition rules
+  url: https://www.kaggle.com/c/aptos2019-blindness-detection
+  role: dev
+  normal_scope: dr_only
+  adapter:
+    type: csv
+    tables: [{file: train.csv, image_dir: train_images}]
+    image_col: id_code
+    path_template: "{image}.png"
+    label_col: diagnosis
+    grade_col: diagnosis
+  label_map: {"0": N, "1": D, "2": D, "3": D, "4": D}
+
+- id: messidor2
+  name: Messidor-2 (images ADCIS + adjudicated ICDR grades, Krause et al. 2018)
+  family: MESSIDOR
+  country: France
+  device: Topcon TRC NW6
+  n_approx: 1748
+  access: ADCIS licence form (images); grades on Kaggle 'google-brain/messidor2-dr-grades'
+  license: ADCIS research licence
+  url: https://www.adcis.net/en/third-party/messidor2/
+  role: dev
+  normal_scope: dr_only
+  adapter:
+    type: csv
+    tables: [{file: messidor_data.csv, image_dir: IMAGES}]
+    image_col: image_id
+    path_template: "{image}"
+    label_col: adjudicated_dr_grade
+    grade_col: adjudicated_dr_grade
+    keep_if: {adjudicated_gradable: 1}
+  label_map: {"0": N, "1": D, "2": D, "3": D, "4": D}
+
+- id: idrid
+  name: IDRiD — Indian Diabetic Retinopathy Image Dataset (disease grading part)
+  family: IDRID_NANDED
+  country: India
+  device: Kowa VX-10 alpha
+  n_approx: 516
+  access: IEEE DataPort open access
+  license: CC BY 4.0
+  url: https://ieee-dataport.org/open-access/indian-diabetic-retinopathy-image-dataset-idrid
+  role: dev
+  normal_scope: dr_only
+  adapter:
+    type: csv
+    tables:
+      - {file: "B. Disease Grading/2. Groundtruths/a. IDRiD_Disease Grading_Training Labels.csv", image_dir: "B. Disease Grading/1. Original Images/a. Training Set"}
+      - {file: "B. Disease Grading/2. Groundtruths/b. IDRiD_Disease Grading_Testing Labels.csv", image_dir: "B. Disease Grading/1. Original Images/b. Testing Set"}
+    image_col: Image name
+    path_template: "{image}.jpg"
+    label_col: Retinopathy grade
+    grade_col: Retinopathy grade
+  label_map: {"0": N, "1": D, "2": D, "3": D, "4": D}
+
+- id: ddr
+  name: DDR (OIA-DDR) DR grading
+  family: DDR_CHINA
+  country: China (147 hospitals, 23 provinces)
+  device: 42 camera types
+  n_approx: 13673
+  access: GitHub -> Google Drive / Baidu
+  license: research use (see repo)
+  url: https://github.com/nkicsl/DDR-dataset
+  role: dev
+  normal_scope: dr_only
+  adapter:
+    type: csv
+    tables:
+      - {file: DR_grading/train.txt, image_dir: DR_grading/train, sep: " ", header: false, names: [image, grade]}
+      - {file: DR_grading/valid.txt, image_dir: DR_grading/valid, sep: " ", header: false, names: [image, grade]}
+      - {file: DR_grading/test.txt,  image_dir: DR_grading/test,  sep: " ", header: false, names: [image, grade]}
+    image_col: image
+    path_template: "{image}"
+    label_col: grade
+    grade_col: grade
+  label_map: {"0": N, "1": D, "2": D, "3": D, "4": D, "5": EXCLUDE}   # 5 = ungradable
+
+- id: deepdrid
+  name: DeepDRiD (regular fundus part)
+  family: DEEPDRID_SHANGHAI
+  country: China (Shanghai)
+  device: regular fundus cameras (UWF part not used here)
+  n_approx: 2000
+  access: GitHub
+  license: CC BY-NC-SA 4.0 (verify)
+  url: https://github.com/deepdrdoc/DeepDRiD
+  role: dev
+  normal_scope: dr_only
+  adapter:
+    type: csv
+    tables:
+      - {file: regular_fundus_images/regular-fundus-training/regular-fundus-training.csv, image_dir: regular_fundus_images/regular-fundus-training/Images}
+      - {file: regular_fundus_images/regular-fundus-validation/regular-fundus-validation.csv, image_dir: regular_fundus_images/regular-fundus-validation/Images}
+    image_col: image_id
+    path_template: "{patient}/{image}.jpg"
+    patient_col: patient_id
+    label_col: [left_eye_DR_Level, right_eye_DR_Level]
+    grade_col: [left_eye_DR_Level, right_eye_DR_Level]
+  label_map: {"0": N, "1": D, "2": D, "3": D, "4": D}
+
+- id: fgadr
+  name: FGADR (Seg-set grades)
+  family: FGADR_UAE
+  country: UAE
+  device: not reported
+  n_approx: 1842
+  access: request form (data agreement)
+  license: research only
+  url: https://csyizhou.github.io/FGADR/
+  role: dev
+  normal_scope: dr_only
+  adapter:
+    type: csv
+    tables: [{file: Seg-set/DR_Seg_Grading_Label.csv, image_dir: Seg-set/Original_Images, header: false, names: [image, grade]}]
+    image_col: image
+    path_template: "{image}"
+    label_col: grade
+    grade_col: grade
+  label_map: {"0": N, "1": D, "2": D, "3": D, "4": D}
+
+- id: sustech_sysu
+  name: SUSTech-SYSU DR grading + lesions
+  family: SYSU_ZOC
+  country: China (Zhongshan Ophthalmic Center)
+  device: Topcon TRC-50DX
+  n_approx: 1219
+  access: figshare
+  license: CC BY 4.0
+  url: https://doi.org/10.6084/m9.figshare.12570770
+  role: dev
+  normal_scope: dr_only
+  adapter: {type: labels_csv}     # convert the release spreadsheet to labels.csv (image,label[,grade])
+  label_map: {"0": N, "1": D, "2": D, "3": D, "4": D}
+
+- id: jichi
+  name: Jichi Medical University DR (Davis grading, Takahashi et al. 2017)
+  family: JICHI_JAPAN
+  country: Japan
+  device: Nidek AFC-230
+  n_approx: 9939
+  access: figshare
+  license: CC BY 4.0 (verify)
+  url: https://figshare.com/articles/figure/Davis_Grading_of_One_and_Concatenated_Figures/4879853
+  role: dev
+  normal_scope: dr_only
+  adapter: {type: labels_csv}
+  label_map: {NDR: N, SDR: D, PPDR: D, PDR: D}
+  notes: Davis scale, not ICDR -> dr_grade left empty for the DR-grading task.
+
+# ------------------------------------------------------------------------------------ multi-disease (dev)
+- id: odir5k
+  name: ODIR-5K (Peking University / Shanggong Medical)
+  family: ODIR_SHANGGONG
+  country: China
+  device: Canon, Zeiss, Kowa (mixed)
+  n_approx: 7000   # labelled training eyes ~ 3500 patients x 2
+  access: grand-challenge (registration) / Kaggle mirror andrewmvd/ocular-disease-recognition-odir5k
+  license: research only
+  url: https://odir2019.grand-challenge.org/
+  role: dev
+  adapter:
+    type: odir
+    file: ODIR-5K/data.xlsx
+    image_dir: ODIR-5K/Training Images
+  label_map: {"normal fundus": N, "lens dust": IGNORE, "image offset": IGNORE, "low image quality": EXCLUDE,
+              "optic disk photographically invisible": EXCLUDE, "no fundus image": EXCLUDE,
+              "glaucoma": G, "suspected glaucoma": EXCLUDE,
+              "dry age-related macular degeneration": A, "wet age-related macular degeneration": A,
+              "age-related macular degeneration": A}
+  label_map_regex:
+    - ["(non)?proliferative retinopathy|diabetic retinopathy", D]
+
+- id: rfmid
+  name: RFMiD 1.0 (Retinal Fundus Multi-disease Image Dataset)
+  family: RFMID_NANDED
+  country: India
+  device: Kowa VX-10 alpha, TOPCON 3D OCT-2000, Kowa VX-10
+  n_approx: 3200
+  access: IEEE DataPort open access
+  license: CC BY 4.0
+  url: https://ieee-dataport.org/open-access/retinal-fundus-multi-disease-image-dataset-rfmid
+  role: dev
+  adapter:
+    type: csv
+    tables:
+      - {file: Training_Set/RFMiD_Training_Labels.csv, image_dir: Training_Set/Training}
+      - {file: Evaluation_Set/RFMiD_Validation_Labels.csv, image_dir: Evaluation_Set/Validation}
+      - {file: Test_Set/RFMiD_Testing_Labels.csv, image_dir: Test_Set/Test}
+    image_col: ID
+    path_template: "{image}.png"
+    multihot_exclude_cols: [ID, Disease_Risk]
+    normal_if_all_zero: true
+  label_map: {NORMAL: N, DR: D, ARMD: A, ODC: G}
+  notes: ODC = optic disc cupping (glaucoma-suspect morphology). Same centre as IDRiD -> pHash check vs IDRiD.
+
+- id: jsiec
+  name: JSIEC 1000 fundus images, 39 classes
+  family: JSIEC_SHANTOU
+  country: China (Shantou)
+  device: Topcon, Zeiss
+  n_approx: 1000
+  access: Kaggle linchundan/fundusimage1000 (Cen et al. 2021)
+  license: research only
+  url: https://www.kaggle.com/datasets/linchundan/fundusimage1000
+  role: dev
+  normal_scope: full
+  adapter: {type: folders}
+  label_map: {}
+  label_map_regex:
+    - ["^0\\.0\\.Normal$", N]
+    - ["DR[1-3]|PDR", D]
+    - ["Possible glaucoma", G]
+    - [".*", EXCLUDE]
+
+- id: stare
+  name: STARE
+  family: STARE_USA
+  country: USA
+  device: TopCon TRV-50
+  n_approx: 397
+  access: direct download
+  license: research use
+  url: https://cecas.clemson.edu/~ahoover/stare/
+  role: dev
+  adapter: {type: labels_csv}   # from all-mg-codes.txt: one row per diagnosis code, separated by '|'
+  label_map: {"0": N, "7": D, "6": D, "13": A}   # STARE codes: 0 normal, 6 BDR, 7 PDR, 13 ARMD (verify)
+
+# -------------------------------------------------------------------------------------- glaucoma (dev)
+- id: airogs
+  name: Rotterdam EyePACS AIROGS (train set)
+  family: EYEPACS
+  country: USA
+  device: multiple (EyePACS)
+  n_approx: 101442
+  access: Zenodo
+  license: CC BY-NC-ND 4.0
+  url: https://zenodo.org/records/5793241
+  role: dev
+  adapter:
+    type: csv
+    tables: [{file: train_labels.csv, image_dir: images}]
+    image_col: challenge_id
+    path_template: "{image}.jpg"
+    label_col: class
+  label_map: {RG: G, NRG: EXCLUDE}   # NRG = 'no referable glaucoma', not an assertion of a normal fundus
+
+- id: refuge
+  name: REFUGE (train+val+test, Zeiss Visucam 500 + Canon CR-2)
+  family: ICHALLENGE_ZOC
+  country: China
+  device: Zeiss Visucam 500, Canon CR-2
+  n_approx: 1200
+  access: grand-challenge / Baidu AI Studio
+  license: research only
+  url: https://refuge.grand-challenge.org/
+  role: dev
+  adapter: {type: folders}
+  label_map: {Glaucoma: G, Non-Glaucoma: EXCLUDE}
+
+- id: lag
+  name: LAG (Large-scale Attention-based Glaucoma)
+  family: LAG_BEIJING
+  country: China (Beijing Tongren)
+  device: not reported
+  n_approx: 4854
+  access: GitHub (request)
+  license: research only
+  url: https://github.com/smilell/AG-CNN
+  role: dev
+  adapter: {type: folders}
+  label_map: {glaucoma: G, non_glaucoma: EXCLUDE}
+
+- id: origa
+  name: ORIGA-light
+  family: ORIGA_SINGAPORE
+  country: Singapore
+  device: not reported
+  n_approx: 650
+  access: originally on request; only unofficial mirrors (Kaggle) -> licence unclear
+  license: unclear
+  url: https://doi.org/10.1109/IEMBS.2010.5626137
+  role: dev
+  adapter:
+    type: csv
+    tables: [{file: OrigaList.csv, image_dir: Images}]
+    image_col: Filename
+    path_template: "{image}"
+    label_col: Glaucoma
+  label_map: {"1": G, "0": EXCLUDE}
+
+- id: acrima
+  name: ACRIMA
+  family: ACRIMA_SPAIN
+  country: Spain
+  device: Topcon TRC
+  n_approx: 705
+  access: figshare
+  license: research use
+  url: https://figshare.com/s/c2d31f850af14c5b5232
+  role: dev
+  adapter:
+    type: filename
+    rules:
+      - ["_g_", glaucoma]
+      - [".*", normal]
+  label_map: {glaucoma: G, normal: N}
+
+- id: rimone_dl
+  name: RIM-ONE DL (use ONE partition only; both partitions contain the same images)
+  family: RIMONE_SPAIN
+  country: Spain
+  device: Nidek AFC-210, Kowa WX 3D
+  n_approx: 485
+  access: GitHub
+  license: research use
+  url: https://github.com/miag-ull/rim-one-dl
+  role: dev
+  adapter: {type: folders, subdir: partitioned_by_hospital}
+  label_map: {glaucoma: G, normal: N}
+
+- id: g1020
+  name: G1020
+  family: G1020_GERMANY
+  country: Germany
+  device: not reported
+  n_approx: 1020
+  access: direct (DFKI)
+  license: research use
+  url: https://www.dfki.uni-kl.de/g1020
+  role: dev
+  adapter:
+    type: csv
+    tables: [{file: G1020.csv, image_dir: Images}]
+    image_col: imageID
+    path_template: "{image}"
+    label_col: binaryLabels
+  label_map: {"1": G, "0": N}
+
+- id: drishti_gs
+  name: Drishti-GS1
+  family: DRISHTI_INDIA
+  country: India (Aravind, Madurai)
+  device: not reported
+  n_approx: 101
+  access: direct (IIIT Hyderabad)
+  license: research use
+  url: https://cvit.iiit.ac.in/projects/mip/drishti-gs/mip-dataset2/Home.php
+  role: dev
+  adapter: {type: labels_csv}
+  label_map: {glaucomatous: G, normal: N}
+
+- id: grape
+  name: GRAPE (glaucoma progression, follow-up visits)
+  family: GRAPE_CHINA
+  country: China (Eye Hospital of Wenzhou Medical Univ.)
+  device: Topcon TRC-NW8, Canon CR-2
+  n_approx: 1115
+  access: figshare
+  license: CC BY 4.0
+  url: https://doi.org/10.6084/m9.figshare.c.6406319
+  role: dev
+  adapter: {type: labels_csv}   # labels.csv: image,label=glaucoma,patient (repeat visits -> patient grouping matters)
+  label_map: {glaucoma: G}
+
+# ------------------------------------------------------------------------------------------- AMD (dev)
+- id: adam
+  name: ADAM / iChallenge-AMD (Training400)
+  family: ICHALLENGE_ZOC
+  country: China
+  device: Zeiss Visucam 500, Canon CR-2
+  n_approx: 1200
+  access: grand-challenge / Baidu AI Studio
+  license: research only
+  url: https://amd.grand-challenge.org/
+  role: dev
+  adapter: {type: folders}
+  label_map: {AMD: A, Non-AMD: EXCLUDE}
+
+- id: bangladesh_eye
+  name: Eye Disease Image Dataset (Bangladesh, 10 classes) — ORIGINAL images only, not the augmented folder
+  family: BANGLADESH_EYE
+  country: Bangladesh
+  device: not reported
+  n_approx: 5335
+  access: Mendeley Data
+  license: CC BY 4.0
+  url: https://data.mendeley.com/datasets/s9bfhswzjb
+  role: dev
+  adapter: {type: folders, subdir: Original Dataset}
+  label_map: {Healthy: N, Diabetic Retinopathy: D, Glaucoma: G}
+  notes: other classes (Pterygium is an anterior-segment photo!) -> OTHER. Verify layout and that 'Original' has no augmented copies.
+
+# ------------------------------------------------------------------------------------ held-out TEST sources
+- id: brset
+  name: BRSET — Brazilian Multilabel Ophthalmological Dataset
+  family: BRSET_SAOPAULO
+  country: Brazil (São Paulo)
+  device: Nikon NF5050, Canon CR-2
+  n_approx: 16266
+  access: PhysioNet credentialed (CITI training + DUA) — you must request it yourself
+  license: PhysioNet Credentialed Health Data License 1.5.0
+  url: https://physionet.org/content/brset/
+  role: test
+  normal_scope: full
+  adapter:
+    type: csv
+    tables: [{file: labels.csv, image_dir: fundus_photos}]
+    image_col: image_id
+    path_template: "{image}.jpg"
+    patient_col: patient_id
+    grade_col: DR_ICDR
+    keep_if: {quality: Adequate}
+    multihot_cols: [diabetic_retinopathy, macular_edema, scar, nevus, amd, vascular_occlusion,
+                    hypertensive_retinopathy, drusens, hemorrhage, retinal_detachment, myopic_fundus,
+                    increased_cup_disc, other]
+    normal_if_all_zero: true
+  label_map: {NORMAL: N, diabetic_retinopathy: D, hemorrhage: IGNORE, macular_edema: IGNORE,
+              amd: A, drusens: IGNORE, increased_cup_disc: G}
+  notes: hemorrhage/macular_edema/drusens are IGNORE so they co-occur with D or A; alone they give no label.
+
+- id: fives
+  name: FIVES (Fundus Image Vessel Segmentation) — 200 N / 200 DR / 200 G / 200 AMD
+  family: FIVES_ZHEJIANG
+  country: China (Zhejiang)
+  device: Topcon TRC-NW8
+  n_approx: 800
+  access: figshare
+  license: CC BY 4.0
+  url: https://doi.org/10.6084/m9.figshare.19688169
+  role: test
+  normal_scope: full
+  adapter:
+    type: filename
+    glob: "*/Original/*.png"
+    rules:
+      - ["_A\\.", AMD]
+      - ["_D\\.", DR]
+      - ["_G\\.", G]
+      - ["_N\\.", N]
+  label_map: {AMD: A, DR: D, G: G, N: N}
+
+- id: papila
+  name: PAPILA (both eyes, clinical data)
+  family: PAPILA_MURCIA
+  country: Spain (Murcia)
+  device: Topcon TRC-NW400
+  n_approx: 488
+  access: figshare
+  license: CC BY 4.0
+  url: https://doi.org/10.6084/m9.figshare.14798004
+  role: test
+  adapter: {type: labels_csv}   # from ClinicalData/patient_data_od.xlsx & _os.xlsx: diagnosis 0 healthy, 1 glaucoma, 2 suspect
+  label_map: {"0": N, "1": G, "2": EXCLUDE}
+
+- id: chaksu
+  name: Chákṣu (3 devices, majority glaucoma decision)
+  family: CHAKSU_INDIA
+  country: India (Manipal)
+  device: Remidio Fundus-on-Phone, Forus 3nethra, Bosch handheld
+  n_approx: 1345
+  access: figshare
+  license: CC BY 4.0
+  url: https://doi.org/10.6084/m9.figshare.20123135
+  role: test
+  adapter: {type: labels_csv}   # Glaucoma_Decision/Majority/*.csv -> labels.csv(image,label,device)
+  label_map: {GLAUCOMA SUSPECT: G, NORMAL: N}
+
+- id: hygd
+  name: Hillel Yaffe Glaucoma Dataset (HYGD)
+  family: HYGD_ISRAEL
+  country: Israel
+  device: Topcon TRC-NW400 (verify)
+  n_approx: 747
+  access: PhysioNet (open)
+  license: see PhysioNet page
+  url: https://physionet.org/content/hillel-yaffe-glaucoma-dataset/
+  role: test
+  adapter:
+    type: csv
+    tables: [{file: Labels.csv, image_dir: Images}]
+    image_col: Image Name
+    path_template: "{image}"
+    patient_col: Patient
+    label_col: Label
+  label_map: {GON+: G, GON-: EXCLUDE}
+
+- id: kim_glaucoma
+  name: Glaucoma fundus (Kim et al., Harvard Dataverse; normal / early / advanced)
+  family: KIM_KOREA
+  country: South Korea
+  device: not reported
+  n_approx: 1544
+  access: Harvard Dataverse
+  license: CC0
+  url: https://doi.org/10.7910/DVN/1YRRAC
+  role: test
+  adapter: {type: folders}
+  label_map: {normal_control: N, early_glaucoma: G, advanced_glaucoma: G}
+
+- id: paraguay_dr
+  name: Paraguay DR fundus dataset (Benítez et al. 2021, 7 categories)
+  family: PARAGUAY
+  country: Paraguay
+  device: Visucam 500 (verify)
+  n_approx: 757
+  access: Zenodo
+  license: CC BY 4.0 (verify)
+  url: https://zenodo.org/records/4891308
+  role: test
+  normal_scope: dr_only
+  adapter: {type: folders}
+  label_map: {}
+  label_map_regex:
+    - ["^1\\.", N]                # '1. No DR signs'
+    - ["^[2-7]\\.", D]
+
+- id: hrf
+  name: HRF — High-Resolution Fundus (15 healthy / 15 DR / 15 glaucoma)
+  family: HRF_ERLANGEN
+  country: Germany / Czech Republic
+  device: Canon CR-1
+  n_approx: 45
+  access: direct
+  license: CC BY 4.0
+  url: https://www5.cs.fau.de/research/data/fundus-images/
+  role: test
+  normal_scope: full
+  adapter:
+    type: filename
+    rules:
+      - ["_h\\.", healthy]
+      - ["_dr\\.", dr]
+      - ["_g\\.", glaucoma]
+  label_map: {healthy: N, dr: D, glaucoma: G}
+
+# ----------------------------------------------------------------- OOD test (reported separately, like CAU)
+- id: mbrset
+  name: mBRSET — smartphone (Phelcom Eyer) DR dataset
+  family: MBRSET_BAHIA
+  country: Brazil (Itabuna, Bahia)
+  device: Phelcom Eyer (smartphone-based handheld)
+  n_approx: 5164
+  access: PhysioNet credentialed
+  license: PhysioNet Credentialed Health Data License
+  url: https://physionet.org/content/mbrset/
+  role: ood_test
+  normal_scope: dr_only
+  adapter:
+    type: csv
+    tables: [{file: labels_mbrset.csv, image_dir: images}]
+    image_col: file
+    path_template: "{image}"
+    patient_col: patient
+    label_col: final_icdr
+    grade_col: final_icdr
+  label_map: {"0": N, "1": D, "2": D, "3": D, "4": D}
+
+# --------------------------------------------------------------------------------- NOT used (documented)
+- {id: messidor1, name: Messidor (original 1200), family: MESSIDOR, role: exclude,
+   exclude_reason: "Brest part re-used inside Messidor-2; non-ICDR grades. Use Messidor-2 instead.",
+   url: "https://www.adcis.net/en/third-party/messidor/"}
+- {id: refuge2, name: REFUGE2, family: ICHALLENGE_ZOC, role: exclude,
+   exclude_reason: "Contains REFUGE images plus new ones; use REFUGE or REFUGE2, never both.", url: "https://refuge.grand-challenge.org/"}
+- {id: justraigs, name: JustRAIGS (EyePACS), family: EYEPACS, role: exclude,
+   exclude_reason: "Same EyePACS origin as AIROGS; keep AIROGS only.", url: "https://justraigs.grand-challenge.org/"}
+- {id: eyeq, name: EyeQ quality labels, family: EYEPACS, role: exclude,
+   exclude_reason: "Quality labels on a subset of Kaggle EyePACS (no new images). Usable as metadata.", url: "https://github.com/HzFu/EyeQ"}
+- {id: retinal_lesions, name: Retinal-Lesions (Wei et al. 2021), family: EYEPACS, role: exclude,
+   exclude_reason: "1,593 images re-annotated from Kaggle EyePACS.", url: "https://github.com/WeiQijie/retinal-lesions"}
+- {id: smdg19, name: SMDG-19 (Standardized Multi-channel Dataset for Glaucoma), family: AGGREGATOR, role: exclude,
+   exclude_reason: "Aggregates ORIGA, REFUGE, RIM-ONE, ACRIMA, G1020, Drishti, PAPILA, HRF, ... -> cross-source duplicates.",
+   url: "https://www.kaggle.com/datasets/deathtrooper/multichannel-glaucoma-benchmark-dataset"}
+- {id: kaggle_eye_diseases_classification, name: "Kaggle 'Eye diseases classification' (4 classes)", family: AGGREGATOR, role: exclude,
+   exclude_reason: "Re-packages IDRiD, ODIR, HRF and others.", url: "https://www.kaggle.com/datasets/gunavenkatdoddi/eye-diseases-classification"}
+- {id: kaggle_cataract, name: Kaggle cataract dataset, family: AGGREGATOR, role: exclude,
+   exclude_reason: "Re-packages HRF/ODIR/etc.; cataract is out of the core label space.", url: "https://www.kaggle.com/datasets/jr2ngb/cataractdataset"}
+- {id: aptos_gaussian, name: "APTOS derivative (224x224 Gaussian filtered)", family: APTOS_ARAVIND, role: exclude,
+   exclude_reason: "Pre-processed copy of APTOS 2019.", url: "https://www.kaggle.com/datasets/sovitrath/diabetic-retinopathy-224x224-gaussian-filtered"}
+- {id: rfmid2, name: RFMiD 2.0, family: RFMID_NANDED, role: exclude,
+   exclude_reason: "Optional; same centre as RFMiD 1.0. Add as dev after pHash check if more data is needed.", url: "https://doi.org/10.3390/data8020029"}
+- {id: palm, name: PALM (pathologic myopia), family: ICHALLENGE_ZOC, role: exclude,
+   exclude_reason: "Myopia is outside the core label space; overlapping normals with ADAM/REFUGE possible.", url: "https://palm.grand-challenge.org/"}
+- {id: sjchoi86_hrf, name: "Kaggle 'sjchoi86' fundus (normal/glaucoma/cataract/retina disease)", family: UNKNOWN, role: exclude,
+   exclude_reason: "Undocumented origin.", url: "https://github.com/cvblab/retina_dataset"}
+- {id: e_ophtha, name: e-ophtha (MA/EX), family: OPHDIAT_FRANCE, role: exclude,
+   exclude_reason: "Lesion segmentation; optional extra D source.", url: "https://www.adcis.net/en/third-party/e-ophtha/"}
+- {id: diaretdb1, name: DIARETDB0/1, family: DIARETDB_FINLAND, role: exclude,
+   exclude_reason: "Tiny lesion sets; optional.", url: "https://www.it.lut.fi/project/imageret/"}
+- {id: areds, name: AREDS (dbGaP), family: AREDS, role: restricted, exclude_reason: "Controlled access (dbGaP).", url: "https://www.ncbi.nlm.nih.gov/projects/gap/cgi-bin/study.cgi?study_id=phs000001"}
+- {id: ukbb, name: UK Biobank retinal photos, family: UKBB, role: restricted, exclude_reason: "Application + fee.", url: "https://www.ukbiobank.ac.uk/"}

@@ -1,0 +1,264 @@
+# FundusShift — released (redistributable) configuration.
+# Only sources whose licence allows redistribution of (modified) images are listed here.
+# Core classes: N (apparently normal), D (DR-like), G (glaucomatous). AMD has no open development source,
+# so AMD images of held-out sources form an open-set probe (label OPENSET -> split test_openset).
+# Every source uses adapter labels_csv, produced by `python -m fsbench.prepare_labels`.
+
+sources:
+
+# ------------------------------------------------------------------------------------------ development
+- id: idrid
+  name: IDRiD — disease grading subset
+  region: South Asia
+  family: NANDED_INDIA
+  country: India
+  device: Kowa VX-10 alpha
+  licence: CC BY 4.0
+  citation: "Porwal et al., Data 2018; IDRiD, IEEE DataPort (Zenodo re-upload 10.5281/zenodo.17219542)"
+  url: https://ieee-dataport.org/open-access/indian-diabetic-retinopathy-image-dataset-idrid
+  role: dev
+  normal_scope: dr_only
+  adapter: {type: labels_csv}
+  label_map: {icdr_0: N, icdr_1: D, icdr_2: D, icdr_3: D, icdr_4: D}
+  label_map_regex: [["^dme_risk_", IGNORE]]
+
+- id: deepdrid
+  name: DeepDRiD — regular fundus (train + validation + challenge test labels)
+  region: East Asia
+  family: DEEPDRID_SHANGHAI
+  country: China
+  device: regular fundus cameras (Shanghai screening programme)
+  licence: CC BY-SA 4.0
+  citation: "Liu et al., Patterns 2022 (DeepDRiD)"
+  url: https://github.com/deepdrdoc/DeepDRiD
+  role: dev
+  normal_scope: dr_only
+  adapter: {type: labels_csv}
+  label_map: {icdr_0: N, icdr_1: D, icdr_2: D, icdr_3: D, icdr_4: D, good_quality: IGNORE, poor_quality: IGNORE}
+
+- id: sustech_sysu
+  name: SUSTech-SYSU
+  region: East Asia
+  family: SYSU_GUANGZHOU
+  country: China
+  device: Topcon TRC-50DX
+  licence: CC BY 4.0
+  citation: "Lin et al., Scientific Data 2020"
+  url: https://doi.org/10.6084/m9.figshare.12570770
+  role: dev
+  normal_scope: dr_only
+  adapter: {type: labels_csv}
+  label_map: {icdr_0: N, icdr_1: D, icdr_2: D, icdr_3: D, icdr_4: D}
+  label_map_regex: [["^laser_scars", D]]
+
+- id: jichi
+  name: Jichi Medical University DR (Davis grading)
+  region: East Asia
+  family: JICHI_JAPAN
+  country: Japan
+  device: Nidek AFC-230
+  licence: CC BY 4.0
+  citation: "Takahashi et al., PLoS ONE 2017"
+  url: https://figshare.com/articles/figure/Davis_Grading_of_One_and_Concatenated_Figures/4879853
+  role: dev
+  normal_scope: dr_only
+  adapter: {type: labels_csv}
+  label_map: {davis_ndr: N, davis_sdr: D, davis_ppdr: D, davis_pdr: D}
+
+- id: rfmid2
+  name: RFMiD 2.0
+  region: South Asia
+  family: NANDED_INDIA
+  country: India
+  device: TOPCON TRC-NW300 / Kowa VX-10 (mixed)
+  licence: CC BY 4.0
+  citation: "Panchal et al., Data 2023"
+  url: https://doi.org/10.5281/zenodo.7505822
+  role: inventory
+  exclude_reason: "Class is fully confounded with camera / resolution (DR 1504x1000, normal 2048x1536, ODC 512x512;
+    within-source AUC 1.00 from trivial image statistics). Kept in the inventory for duplicate detection only."
+  normal_scope: full
+  adapter: {type: labels_csv}
+  label_map: {WNL: N, DR: D, ODC: G}
+
+- id: grape
+  name: GRAPE (glaucoma follow-up colour fundus photographs)
+  region: East Asia
+  family: WENZHOU_CHINA
+  country: China
+  device: Topcon TRC-NW8, Canon CR-2
+  licence: CC0 1.0
+  citation: "Huang et al., Scientific Data 2023"
+  url: https://doi.org/10.6084/m9.figshare.c.6406319
+  role: dev
+  adapter: {type: labels_csv}
+  label_map: {glaucoma_follow_up: G}
+  known_reuse: "FIVES glaucoma images include GRAPE photographs (21 verified copies, 26 GRAPE patients). All images of
+    those patients are removed from development by the leakage-group rule."
+
+- id: bangladesh_eye
+  name: Eye Disease Image Dataset (Faridpur, Bangladesh) — original images only
+  region: South Asia
+  family: FARIDPUR_BANGLADESH
+  country: Bangladesh
+  device: not reported
+  licence: CC BY 4.0
+  citation: "Sharmin et al., Mendeley Data 2024, doi:10.17632/s9bfhswzjb.1"
+  url: https://data.mendeley.com/datasets/s9bfhswzjb
+  role: dev
+  normal_scope: full
+  adapter: {type: labels_csv}
+  label_map: {Healthy: N, Diabetic_Retinopathy: D, Glaucoma: G}
+  notes: "Label reliability is low: ~18% of files occur as byte-identical copies in two or more disease folders
+    (e.g. Glaucoma and Healthy). All conflicting copies are removed (duplicate_label_conflict)."
+
+- id: ddr
+  name: OIA-DDR (DR grading part)
+  region: East Asia
+  family: DDR_CHINA
+  country: China (147 hospitals, 23 provinces)
+  device: 42 camera types
+  licence: CC BY-NC-SA 4.0
+  citation: "Li et al., Information Sciences 2019 (DDR)"
+  url: https://github.com/nkicsl/DDR-dataset
+  role: dev
+  normal_scope: dr_only
+  adapter: {type: labels_csv}
+  label_map: {ddr_0: N, ddr_1: D, ddr_2: D, ddr_3: D, ddr_4: D, ungradable: EXCLUDE}
+
+# ------------------------------------------------------------------------------------- held-out test
+- id: fives
+  name: FIVES
+  region: East Asia
+  family: ZHEJIANG_CHINA
+  country: China
+  device: Topcon TRC-NW8
+  licence: CC BY 4.0
+  citation: "Jin et al., Scientific Data 2022"
+  url: https://doi.org/10.6084/m9.figshare.19688169
+  role: test
+  normal_scope: full
+  adapter: {type: labels_csv}
+  label_map: {normal: N, diabetic_retinopathy: D, glaucoma: G, amd: OPENSET}
+  known_reuse: "Part of the glaucoma class re-uses GRAPE photographs (brightness-altered). Kept in test; the GRAPE
+    patients involved are removed from development."
+
+- id: papila
+  name: PAPILA
+  region: Europe
+  family: MURCIA_SPAIN
+  country: Spain
+  device: Topcon TRC-NW400
+  licence: GPL-3.0-or-later
+  citation: "Kovalyk et al., Scientific Data 2022"
+  url: https://doi.org/10.6084/m9.figshare.14798004
+  role: test
+  normal_scope: full
+  adapter: {type: labels_csv}
+  label_map: {healthy: N, glaucoma: G, suspect: EXCLUDE}
+
+- id: hygd
+  name: Hillel Yaffe Glaucoma Dataset
+  region: Middle East
+  family: HADERA_ISRAEL
+  country: Israel
+  device: not reported
+  licence: ODC-By 1.0
+  citation: "Abramovich et al., PhysioNet 2025, HYGD v1.1.0"
+  url: https://physionet.org/content/hillel-yaffe-glaucoma-dataset/
+  role: test
+  adapter: {type: labels_csv}
+  label_map: {GON+: G, GON-: EXCLUDE}
+
+- id: paraguay_dr
+  name: Paraguay DR fundus dataset
+  region: Latin America
+  family: ASUNCION_PARAGUAY
+  country: Paraguay
+  device: not reported
+  licence: CC BY 4.0
+  citation: "Benítez et al., Data in Brief 2021"
+  url: https://doi.org/10.5281/zenodo.4891308
+  role: test
+  normal_scope: dr_only
+  adapter: {type: labels_csv}
+  label_map: {}
+  label_map_regex: [["^1\\b", N], ["^[2-7]\\b", D]]
+
+- id: hrf
+  name: HRF — High-Resolution Fundus
+  region: Europe
+  family: ERLANGEN_GERMANY
+  country: Germany / Czech Republic
+  device: Canon CR-1
+  licence: CC BY 4.0
+  citation: "Budai et al., Int J Biomed Imaging 2013"
+  url: https://www5.cs.fau.de/research/data/fundus-images/
+  role: test
+  normal_scope: full
+  adapter: {type: labels_csv}
+  label_map: {healthy: N, diabetic_retinopathy: D, glaucoma: G}
+
+- id: palm
+  name: PALM (pathologic myopia)
+  region: East Asia
+  family: PALM_ZOC
+  country: China (Zhongshan Ophthalmic Center)
+  device: Zeiss Visucam 500, Canon CR-2
+  licence: CC0 1.0
+  citation: "Fang et al., Scientific Data 2024"
+  url: https://doi.org/10.6084/m9.figshare.21299148
+  role: test
+  normal_scope: full
+  adapter: {type: labels_csv}
+  label_map: {normal: N, pathologic_myopia: OPENSET, high_myopia_no_pm: EXCLUDE, non_pm: EXCLUDE}
+  label_map_regex: [["^device_", IGNORE]]
+  notes: "Only training-part non-PM images are named normal vs high myopia; other non-PM images are excluded."
+
+- id: afio_composite
+  name: AFIO composite fundus + OCT dataset (colour fundus photographs)
+  region: South Asia
+  family: AFIO_PAKISTAN
+  country: Pakistan (Armed Forces Institute of Ophthalmology, Rawalpindi)
+  device: Topcon 3D OCT-2000 (fundus camera)
+  licence: CC BY 4.0
+  citation: "Hassan et al., Mendeley Data, doi:10.17632/trghs22fpg.4"
+  url: https://data.mendeley.com/datasets/trghs22fpg
+  role: test
+  normal_scope: full
+  adapter: {type: labels_csv}
+  label_map: {macula_healthy: N, od_healthy: N, od_glaucoma: G, macula_ci-dme: D,
+              macula_geographic_amd: OPENSET, macula_neovascular_amd: OPENSET,
+              macula_acute_csr: OPENSET, macula_chronic_csr: OPENSET}
+
+# ------------------------------------------------------------------ OOD test (reported separately)
+- id: chaksu
+  name: Chákṣu IMAGE (3 low-cost / handheld devices)
+  region: South Asia
+  family: MANIPAL_INDIA
+  country: India
+  device: Remidio Fundus-on-Phone, Forus 3nethra, Bosch handheld
+  licence: CC BY 4.0
+  citation: "Kumar et al., Scientific Data 2023"
+  url: https://doi.org/10.6084/m9.figshare.20123135
+  role: ood_test
+  normal_scope: full
+  adapter: {type: labels_csv}
+  label_map: {normal: N, glaucoma_suspect: G}
+  label_map_regex: [["^votes_", IGNORE], ["^device_", IGNORE]]
+  notes: "Label = majority of 5 glaucoma experts per image (vote count kept in native_label)."
+
+# ------------------------------------------------------------------------------- checked, not used
+- {id: kim_glaucoma, name: "Kim's Eye Hospital glaucoma (Harvard Dataverse)", family: KIM_KOREA, role: exclude, licence: CC0 1.0,
+   exclude_reason: "Released images are 240 px optic-nerve-head crops, not full-field fundus photographs -> trivial field-of-view shortcut."}
+- {id: acrima, name: ACRIMA, family: VALENCIA_SPAIN, role: exclude, licence: CC BY 4.0,
+   exclude_reason: "Images are cropped around the optic disc (readme), not full-field fundus photographs."}
+- {id: rajbari_eye, name: "Rajbari Eye Clinic multi-class set (Bangladesh)", family: RAJBARI_BANGLADESH, role: exclude,
+   licence: CC BY 4.0, exclude_reason: "Every class folder holds exactly 500 files with random names: the 1,222 originals
+   are mixed with augmented copies and cannot be separated."}
+- {id: afio_hr, name: "AFIO hypertensive retinopathy / DR / papilledema (100 images)", family: AFIO_PAKISTAN, role: exclude,
+   licence: CC BY 4.0, exclude_reason: "No per-image diagnosis released (vessel and A/V masks only)."}
+- {id: airogs, name: Rotterdam EyePACS AIROGS, family: EYEPACS, role: exclude, licence: CC BY-NC-ND 4.0,
+   exclude_reason: "NoDerivatives licence forbids redistributing cropped/resized images; 55 GB."}
+- {id: jsiec, name: JSIEC 1000 images, family: JSIEC_SHANTOU, role: exclude, licence: "other-open (unspecified)",
+   exclude_reason: "Licence not specified and images reportedly drawn from 7 sources."}

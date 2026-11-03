@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.DS_Store
+data/
+runs/
+gated_models/
+*.npy
+*.pt
+*.safetensors
+paper/generated/
+paper/figures/

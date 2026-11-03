@@ -1,0 +1,15 @@
+setting,n,spearman
+16-shot-probe,130,0.3743897526239861
+coop,70,0.7999930009667413
+coop-ctxinit,70,0.9271732948685866
+coop-lp,50,0.39301666586619277
+finetune,65,0.05327797202797203
+linear-probe,390,0.3439987214804932
+mlp-probe,11,0.5272727272727273
+tip-adapter,3,0.5
+tip-adapter-acc,3,0.5
+tip-adapter-f,3,-0.5
+tip-adapter-f-acc,3,-0.5
+wise-ft,4,-1.0
+zero-shot,36,0.8305553785137311
+ALL,847,0.7810515642926527

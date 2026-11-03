@@ -1,0 +1,14 @@
+{
+  "frozen": "2026-11-02, before any test or Chaksu row of this method was read; chosen by the user",
+  "name_status": "working name; final name not chosen",
+  "encoder": "medsiglip, pooled image feature, standardised on train",
+  "head": {"kind": "linear", "loss": "ls", "epochs": 40, "bs": 256, "lr": 0.001, "wd": 0.0001, "weights": "class balanced", "selection": "best epoch by validation bAcc on the sites of that head"},
+  "site_projection": {"method": "NAP, within-class between-site directions, fitted per head on its training rows", "k": 32},
+  "bag": "one head per development source, each trained without that source; logits centred per image, scaled by their std on validation, averaged",
+  "text": {"banks": ["clip_ensemble", "cupl", "descriptive_single"], "scale": "centred per image, scaled by std on validation, averaged"},
+  "fusion": "0.5 bag + 0.5 text",
+  "calibration": "none in the method; raw, TS and FTS on Cal-A as for every baseline",
+  "seeds": [0, 1, 2],
+  "development": {"dev_bacc_loso": 0.791, "ece": 0.155, "nll": 0.581, "recall_G": 0.639, "false_G": 0.070},
+  "disclosure": "About 120 configurations were compared on 7 development sites by leave-one-source-out. Baseline test results had been seen before this method was designed. A variant with mirror features (dev bAcc .800) was not chosen and would be post hoc if run on test after this."
+}
