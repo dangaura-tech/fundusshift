@@ -356,3 +356,6 @@ if seeds:
     write("s6_seeds.tex", rows)
     print("".join(rows))
 print("[ok review]")
+sp_ = pd.read_csv("results/review/site_probe.csv")
+write("s6_siteprobe.tex", [line(esc(r.features), r.view, f"{int(r.n):,}", f3(r.disease), f3(r.site_all), f3(r.site_within_N), f3(r.site_within_D)) for r in sp_.itertuples()])
+print("[ok site]")
