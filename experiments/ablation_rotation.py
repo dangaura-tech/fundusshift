@@ -21,6 +21,8 @@ def main(argv=None):
         ap.add_argument("--" + k, required=True)
     ap.add_argument("--worker", type=int, default=0)
     ap.add_argument("--workers", type=int, default=1)
+    ap.add_argument("--seed", type=int, default=0, help="training seed offset; 0 reproduces the first run")
+    ap.add_argument("--arms", nargs="*", default=list(ARMS))
     a = ap.parse_args(argv)
     t, M, Tb = load(a)
     keep = t.split.isin(["train", "validation", "calibration", "test"]).to_numpy()
@@ -28,7 +30,7 @@ def main(argv=None):
     ch = base_sp == "test_ood"
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    f = out / f"w{a.worker}.csv"
+    f = out / (f"w{a.worker}.csv" if a.seed == 0 else f"seed{a.seed}_w{a.worker}.csv")
     rows = pd.read_csv(f).to_dict("records") if f.exists() else []
     done = {(r["split"], r["arm"]) for r in rows}
     for k, test in enumerate(draw_splits(t, 50)):
@@ -52,14 +54,14 @@ def main(argv=None):
                     sub[i] = "cal_A" if half[groups[i]] else "cal_B"
         tr, va, ca = sp == "train", sp == "validation", (sp == "calibration") & (sub == "cal_A")
         X = (M - M[tr].mean(0)) / (M[tr].std(0) + 1e-6)
-        for arm, kw in ARMS.items():
+        for arm, kw in ((k_, ARMS[k_]) for k_ in a.arms):
             if (k, arm) in done:
                 continue
-            Z = pipeline(X, y, scope, src, tr, va, Tb, "exact", k, **kw)
+            Z = pipeline(X, y, scope, src, tr, va, Tb, "exact", k + 1000 * a.seed, **kw)
             P = Calibrator("ts").fit(Z[ca], y[ca])(Z)
             pred = P.argmax(1)
             per = [balanced_accuracy_score(y[te & (src == s)], pred[te & (src == s)]) for s in test]
-            r = dict(split=k, arm=arm, test_bacc=balanced_accuracy_score(y[te], pred[te]), test_bacc_source_equal=float(np.mean(per)), ece_ts=ece(P[te], y[te])[0], chaksu_bacc=balanced_accuracy_score(y[ch], pred[ch]))
+            r = dict(split=k, seed=a.seed, arm=arm, test_bacc=balanced_accuracy_score(y[te], pred[te]), test_bacc_source_equal=float(np.mean(per)), ece_ts=ece(P[te], y[te])[0], chaksu_bacc=balanced_accuracy_score(y[ch], pred[ch]))
             for c, cn in enumerate(["N", "D", "G"]):
                 r[f"recall_{cn}"] = float((pred[te & (y == c)] == c).mean()) if (te & (y == c)).any() else np.nan
             r["false_G"] = float((pred[te & (y != 2)] == 2).mean())

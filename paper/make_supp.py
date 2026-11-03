@@ -329,3 +329,30 @@ for arm, nm in [("calB", "Cal-B"), ("loso", "LOSO reference")]:
             rows.append(line(nm + (" + cert." if cert else ""), {"c80": "cov. .80", "c90": "cov. .90", "r10": "risk .10"}[tgt], f3(d_[f"{p}_test_cov"].mean()), f3(d_[f"{p}_test_risk"].mean()), f3(d_[f"{p}_test_fr"].mean()), f3(d_[f"{p}_test_GtoN"].mean()), f3(d_[f"{p}_chaksu_cov"].mean()), f3(d_[f"{p}_chaksu_risk"].mean())))
 write("s8_cert.tex", rows)
 print("[ok supp]")
+
+# Reviewer checks
+pj = pd.read_csv("results/review/projection.csv")
+write("s6_projection.tex", [line("none (all)" if r.left_out == "none" else SRC[r.left_out], str(int(r.k)), f3(r.ND_removed), f3(r.NG_removed), f3(r.DG_removed), f3(r.NG_removed_random), f3(r.cos_Gsite_NG) if not pd.isna(r.cos_Gsite_NG) else "--") for r in pj.itertuples()])
+gs = pd.read_csv("results/review/glaucoma_sources.csv")
+write("s6_gsrc.tex", [line(r.method, str(int(r.g_dev_sources)), str(int(r.rotations)), f3(r.recall_G), f3(r.test_bacc)) for r in gs.itertuples()])
+ec = pd.read_csv("results/review/ece_ci.csv")
+write("s4_ececi.tex", [line(SRC[r.source], f"{int(r.n):,}", f"{int(r.groups):,}", f3(r.ece_ts), f"[{f3(r.lo)}, {f3(r.hi)}]") for r in ec.itertuples()])
+seeds = sorted(glob.glob("results/ablation_rotation/seed*_w*.csv"))
+if seeds:
+    s0 = pd.concat([pd.read_csv(f_) for f_ in glob.glob("results/ablation_rotation/w*.csv")]).assign(seed=0)
+    sx = pd.concat([s0] + [pd.read_csv(f_) for f_ in seeds])
+    sx = sx[(sx.split > 0) & sx.arm.isin(["full", "no_projection", "text_only"])]
+    rows = []
+    for arm, n in [("full", "LANTERN"), ("no_projection", "without projection"), ("text_only", "text only")]:
+        q = sx[sx.arm == arm]
+        complete = q.groupby("split").seed.nunique()
+        q = q[q.split.isin(complete[complete == 3].index)]
+        per_split = q.groupby("split").test_bacc
+        rows.append(line(n, str(q.split.nunique()), f3(q.test_bacc.mean()), f3(per_split.std().mean()), f3(per_split.mean().std()), f3(q.groupby("split").ece_ts.mean().mean()), f3(q.groupby("split").recall_G.mean().mean())))
+    full = sx[sx.arm == "full"].groupby("split").test_bacc.mean()
+    nop = sx[sx.arm == "no_projection"].groupby("split").test_bacc.mean()
+    common = full.index.intersection(nop.index)
+    rows.append(line("\\multicolumn{7}{l}{Without projection minus LANTERN, seed-averaged: " + f"{(nop[common] - full[common]).mean():+.3f}, higher on {int((nop[common] > full[common]).sum())} of {len(common)} rotations" + "}"))
+    write("s6_seeds.tex", rows)
+    print("".join(rows))
+print("[ok review]")

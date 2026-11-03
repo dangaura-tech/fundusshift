@@ -92,6 +92,8 @@ FS_DATA=$DATA python paper/make_supp.py     # supplementary material
 | Shift-aware reference (Table 9) | `experiments/certify.py` | `results/certify/` |
 | Development ablation and design search | `experiments/strata_gate*.py`, `experiments/rptoken.py` | `results/strata/` |
 | Label-scope analysis | `experiments/scope.py` | `results/scope/` |
+| Seeds over rotations, projection analysis, glaucoma-source analysis, ECE intervals | `experiments/ablation_rotation.py --seed`, `experiments/review_checks.py` | `results/ablation_rotation/`, `results/review/` |
+| Patch-level evidence maps | `experiments/evidence_maps.py` | figure in the supplementary material |
 
 
 ## Licence
