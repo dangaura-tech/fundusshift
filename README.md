@@ -90,17 +90,6 @@ FS_DATA=$DATA python paper/make_assets.py
 | Development ablation and design search | `experiments/strata_gate*.py`, `experiments/rptoken.py` | `results/strata/` |
 | Label-scope analysis | `experiments/scope.py` | `results/scope/` |
 
-## Citation
-
-```
-@inproceedings{le2027fundusshift,
-  author    = {Le, Dang Truong Minh},
-  title     = {FundusShift: Benchmarking Accuracy and Reliability of Fundus Disease Classification at Unseen Sources, and a Low-Capacity Remedy},
-  booktitle = {TAIMMA 2027, Communications in Computer and Information Science},
-  publisher = {Springer},
-  year      = {2027}
-}
-```
 
 ## Licence
 
