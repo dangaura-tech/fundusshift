@@ -801,6 +801,14 @@ Linear probe (pooled) & 0.746 & 0.084 & 0.750 & 0.182\\\bottomrule
 \textbf{Simple baselines} (\texttt{experiments/review\_baselines.py}, \texttt{results/review\_baselines}; 50 rotations, seed 0, same splits and evaluation). The rotation linear probe fused 1/2 + 1/2 with LOTUS's text scores reached bAcc 0.777, ECE 0.043, NLL 0.534 and recall G 0.666; LOTUS (0.788, 0.034, 0.508, 0.708) was ahead by $0.012\pm0.021$ (higher on 35 of 50; ECE lower on 33). One LOTUS head on all development sources, six seeds averaged, plus text, reached 0.786, ECE 0.035 and recall G 0.695; LOTUS was ahead by $0.002\pm0.007$ (27 of 50).
 \reading{Added to the probe, text fusion gives 0.745 to 0.777 and the head recipe 0.777 to 0.788; removed from LOTUS, text costs 0.010 and the recipe more (Table~\ref{tab:abl}), so the split depends on the order. The leave-one-source-out construction adds no more than seed averaging. LOTUS is best read as a regularized linear-head ensemble fused with zero-shot text.}
 
+\textbf{Fine-tuned baselines over rotations} (\texttt{experiments/rot\_finetune.py}, \texttt{results/rot\_finetune}). ConvNeXt-T fine-tuned with CE and with Group DRO, unchanged benchmark recipes, retrained on each of the first ten rotations (seed 0) and scored with the same code.
+\begin{table}[h]\centering\scriptsize\caption{Rotations 1--10, seed 0, TS. Risk: at the 80\% coverage threshold; LAC: coverage at nominal 0.90. Last column: rotations where LOTUS is higher in bAcc.}\label{tab:rotft}
+\begin{tabular}{@{}lrrrrrrrr@{}}\toprule
+Method & bAcc & Eq-src & Recall G & ECE & Risk & LAC & Ch\'ak\d{s}u & LOTUS higher\\\midrule
+\G{s9_rotft.tex}
+\end{tabular}\end{table}
+\reading{Fine-tuned models trail LOTUS on every one of these rotations, by about 0.12 in bAcc, with three times its ECE and lower recall G, so Finding~4 holds beyond the published split. The probe fused with text matches LOTUS in bAcc on these ten partitions and is slightly worse calibrated.}
+
 \textbf{Recipe components} (\texttt{experiments/recipe\_ablation.py}, \texttt{results/recipe\_ablation}). One head on all development sources plus text (0.786, within 0.002 of LOTUS), one component changed at a time, 50 rotations, seed 0.
 \begin{table}[h]\centering\scriptsize\caption{Head recipe ablation. Reference: smoothing 0.1, class-balanced resampling, 12 epochs, AdamW lr $3\cdot10^{-4}$, weight decay $10^{-2}$, best epoch by validation bAcc. Last column: rotations where the reference is higher.}\label{tab:recipe}
 \begin{tabular}{@{}lrrrrrr@{}}\toprule

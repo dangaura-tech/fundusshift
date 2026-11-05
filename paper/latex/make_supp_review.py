@@ -63,3 +63,21 @@ for k in sorted(LAB, key=lambda k: (k != "reference", s.loc[k, "test_bacc"])):
     txt += f"{LAB[k]} & {fx(a.test_bacc)} & {dl} & {fx(a.ece_ts)} & {fx(a.nll_ts)} & {fx(a.recall_G)} & {hi}\\\\\n"
 (OUT / "s9_recipe.tex").write_text(txt + "\\bottomrule\n")
 print("[ok] s10_ext, s10_ext2, s9_recipe")
+
+# fine-tuned baselines over the first ten rotations (seed 0), against LOTUS and the probes on the same partitions
+f = pd.concat([pd.read_csv(x) for x in glob.glob("results/rot_finetune/k*_*.csv")])
+ks = sorted(f.split.unique())
+L = pd.concat([pd.read_csv(x) for x in glob.glob("results/site_adapt/rotation_w*.csv")])
+B = pd.concat([pd.read_csv(x) for x in glob.glob("results/review_baselines/rotation_w*.csv")])
+ref = pd.concat([L[L.variant == "lotus"], B[B.variant.isin(["lp", "lp_text"])]]).rename(columns={"variant": "method"})
+f = pd.concat([f, ref[ref.split.isin(ks)]])
+q = f.pivot_table(index="split", columns="method", values="test_bacc")
+s = f.groupby("method")[["test_bacc", "test_bacc_source_equal", "recall_G", "ece_ts", "risk_test", "lac_test", "chaksu_bacc"]].mean()
+LAB = {"lotus": "\\textbf{LOTUS}", "lp_text": "Linear probe + text", "lp": "Linear probe", "convnext_ce": "ConvNeXt-T, CE (fine-tuned)", "convnext_groupdro": "ConvNeXt-T, Group DRO"}
+txt = ""
+for k in LAB:
+    a = s.loc[k]
+    hi = "--" if k == "lotus" else f"{int((q['lotus'] > q[k]).sum())}/{len(q)}"
+    txt += " & ".join([LAB[k]] + [fx(a[c]) for c in s.columns] + [hi]) + "\\\\\n"
+(OUT / "s9_rotft.tex").write_text(txt + "\\bottomrule\n")
+print("[ok] s9_rotft", len(ks), "rotations")
