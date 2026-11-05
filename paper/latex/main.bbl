@@ -6,7 +6,7 @@
 \bibitem{hygd}
 Abramovich, O., Pizem, H., Fhima, J., et~al.: {Hillel Yaffe} glaucoma dataset
   ({HYGD}): A gold-standard annotated fundus dataset for glaucoma detection.
-  PhysioNet, version 1.1.0. \doi{10.13026/m92s-0z95}
+  PhysioNet, version 1.1.0 (2025). \doi{10.13026/m92s-0z95}
 
 \bibitem{drgen}
 Atwany, M., Yaqub, M.: {DRGen}: Domain generalization in diabetic retinopathy
@@ -96,10 +96,6 @@ Jin, K., Huang, X., Zhou, J., et~al.: {FIVES}: A fundus image dataset for
   artificial intelligence based vessel segmentation. Scientific Data
   \textbf{9}, ~475 (2022)
 
-\bibitem{bangladesh}
-Khatun, T.: Eye disease image dataset. Mendeley Data (2024).
-  \doi{10.17632/s9bfhswzjb.1}
-
 \bibitem{wilds}
 Koh, P.W., Sagawa, S., Marklund, H., et~al.: {WILDS}: A benchmark of
   in-the-wild distribution shifts. In: Proceedings of the 38th International
@@ -181,6 +177,10 @@ Pakdaman~Naeini, M., Cooper, G.F., Hauskrecht, M.: Obtaining well calibrated
 Porwal, P., Pachade, S., Kamble, R., et~al.: Indian diabetic retinopathy image
   dataset ({IDRiD}): A database for diabetic retinopathy screening research.
   Data  \textbf{3}(3), ~25 (2018)
+
+\bibitem{bangladesh}
+Rashid, M.R., et~al.: Eye disease image dataset. Mendeley Data (2024).
+  \doi{10.17632/s9bfhswzjb.1}
 
 \bibitem{inlp}
 Ravfogel, S., Elazar, Y., Gonen, H., et~al.: Null it out: Guarding protected
