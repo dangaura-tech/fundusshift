@@ -1,6 +1,6 @@
 # FundusShift and LOTUS
 
-[![DOI](https://zenodo.org/badge/1444002583.svg)](https://doi.org/10.5281/zenodo.23979471)
+[![DOI](https://zenodo.org/badge/1444002583.svg)](https://doi.org/10.5281/zenodo.23981813)
 
 Code, results and supplementary material for:
 
@@ -13,7 +13,14 @@ Code, results and supplementary material for:
 
 **Paper (PDF, 15 pages):** [view online](https://github.com/dangaura-tech/fundusshift/blob/main/paper/main.pdf) · [download](https://github.com/dangaura-tech/fundusshift/raw/main/paper/main.pdf)
 
-**Supplementary material (PDF, 36 pages):** [view online](https://github.com/dangaura-tech/fundusshift/blob/main/paper/supplementary.pdf) · [download](https://github.com/dangaura-tech/fundusshift/raw/main/paper/supplementary.pdf)
+**Supplementary material (PDF, 37 pages):** [view online](https://github.com/dangaura-tech/fundusshift/blob/main/paper/supplementary.pdf) · [download](https://github.com/dangaura-tech/fundusshift/raw/main/paper/supplementary.pdf)
+
+## Main results
+
+- Over 50 random source rotations (three seeds), LOTUS reached balanced accuracy 0.789 against 0.746 for the strongest probe (higher on 43 of 50) and ECE 0.034 against 0.084 (lower on 47 of 50).
+- Choosing the configuration in each rotation from development data only (leave-one-source-out) still gave 0.780 against 0.746 (39 of 50) and ECE 0.035 (47 of 50).
+- Validation barely ranks fine-tuned models at unseen sources (Spearman 0.05); development-tuned risk, conformal and specificity targets break at new sources; glaucoma is the weakest class.
+- Leave-one-source-out thresholds kept a 10% risk target on 42 of 50 rotations instead of 19.
 
 ## Repository layout
 
@@ -21,9 +28,9 @@ Code, results and supplementary material for:
 |---|---|
 | `fsbench/` | Benchmark construction: label mapping, manifest, duplicate and near-duplicate detection (vessel signature + NCC), leakage-grouped splits, audit, image processing |
 | `configs/` | Source catalogue and the released benchmark configuration |
-| `scripts/` | Download and extraction helpers for the public sources; `revision.sbatch` for the LOTUS runs on a SLURM cluster |
+| `scripts/` | Download and extraction helpers for the public sources; `revision.sbatch` and `extra.sbatch` for the LOTUS runs on a SLURM cluster |
 | `baselines/`, `experiments/` | Feature extraction, all baselines, calibration, evaluation, statistics, LOTUS and its ablations |
-| `results/` | Saved result tables behind every number in the paper (CSV; large tables gzipped); LOTUS in `results/revision/` and `results/lotus/` |
+| `results/` | Saved result tables behind every number in the paper (CSV; large tables gzipped); LOTUS in `results/revision/`, `results/lotus/` and `results/extra/` |
 | `paper/main.pdf`, `paper/supplementary.pdf` | The paper and the supplementary material |
 | `paper/latex/` | LaTeX sources (`main.tex`, `supplementary.tex`, `refs.bib`), generated tables and figures, and the scripts that build them: `make_assets.py` (main paper), `make_supp.py` and `make_supp_extra.py` (supplement) |
 | `docs/` | Evaluation protocol, datasheet, frozen configuration of the initial design, pretraining-overlap and ethics checks |
@@ -86,6 +93,10 @@ Each accepts `--worker i --workers k`. Then copy the published-split logits into
 ```
 mkdir -p $DATA/runs/lotus $DATA/runs/lantern
 for s in 0 1 2; do cp results/revision/final/no_projection_s$s.npy $DATA/runs/lotus/logits_s$s.npy; cp results/revision/final/full_s$s.npy $DATA/runs/lantern/logits_s$s.npy; done
+python -m experiments.extra_runs nested --bench $DATA/bench --strata $DATA/strata --zeroshot $DATA/runs/medsiglip --out results/extra
+python -m experiments.extra_runs recipe --bench $DATA/bench --strata $DATA/strata --zeroshot $DATA/runs/medsiglip --features $DATA/runs/features --out results/extra
+python -m experiments.extra_runs prior --bench $DATA/bench --strata $DATA/strata --zeroshot $DATA/runs/medsiglip --revision results/revision --out results/extra
+python -m experiments.extra_runs screen --bench $DATA/bench --strata $DATA/strata --zeroshot $DATA/runs/medsiglip --revision results/revision --out results/extra
 python -m experiments.lotus_eval --bench $DATA/bench --runs $DATA/runs --out results/lotus
 python -m experiments.lotus_rotation --bench $DATA/bench --logits results/revision/rot_logits --out results/lotus
 python -m experiments.review_tables --bench $DATA/bench --images $DATA/processed --runs $DATA/runs --out results/lotus/review --method-dir lotus --method-name LOTUS --fig-dir paper/latex/figures
@@ -107,6 +118,7 @@ cd paper/latex && latexmk -pdf main.tex supplementary.tex
 | LOTUS on the published split, paired tests (Tables 7, 8) | `experiments/lotus_eval.py` | `results/lotus/` |
 | Rotations (Table 5, Fig. 3) | `experiments/supplement.py`, `experiments/revision_runs.py`, `experiments/lotus_rotation.py` | `results/supplement/rotation.csv`, `results/lotus/rotation_lotus.csv` |
 | Rotation ablation, seeds, glaucoma-source and region analyses (Table 6; Suppl. S6) | `experiments/revision_runs.py` | `results/revision/` |
+| Selection without held-out data, input versus recipe, prior correction over rotations, screening thresholds (Sec. 5; Suppl. S6) | `experiments/extra_runs.py` | `results/extra/` |
 | Shift-aware reference (Table 9) | `experiments/revision_runs.py certify` | `results/revision/certify_no_projection/` |
 | Per-source, disease-level and scope tables, risk-coverage curves (Suppl. S4, S5) | `experiments/review_tables.py` | `results/lotus/review/` |
 | Development ablation and design search (Table 4; Suppl. S8) | `experiments/strata_gate*.py`, `experiments/rptoken.py` | `results/strata/` |
