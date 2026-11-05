@@ -41,7 +41,7 @@ Follows Gebru et al., *Datasheets for Datasets*. "Not known" means the release c
 
 ## Distribution and licences
 
-- Hugging Face, private at present: `le-dang1haha/FundusShift`. No DOI yet.
+- Hugging Face, public: `le-dang1haha/FundusShift`. No DOI yet.
 - No single licence. Each image keeps its source licence. OIA-DDR (CC BY-NC-SA 4.0, 12,520 images), DeepDRiD (CC BY-SA 4.0, 2,000) and PAPILA (GPL-3.0-or-later, 420) carry the strongest terms. Published terms allow research use and non-commercial redistribution with attribution, stated changes and the same licence. Use of the full benchmark is non-commercial.
 - Not legal advice. PAPILA's licence was confirmed from a University of Murcia record because figshare could not be opened; check the figshare field before public release. Commercial use of models trained on OIA-DDR is an open question for its authors.
 

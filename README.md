@@ -46,7 +46,7 @@ GPU runs used Linux with one NVIDIA RTX 5000 Ada; LOTUS, the probes and all post
 
 ## Data
 
-Images are not redistributed here. Every source is public and is obtained from its original publisher under its own licence (see `configs/sources.yaml` and `docs/ethics_by_source.md`); `scripts/` and `fsbench/` rebuild the benchmark from those downloads. The split tables used in the paper are available from the author on request. Note that OIA-DDR is CC BY-NC-SA 4.0, so derived data is non-commercial.
+The benchmark is public on Hugging Face: https://huggingface.co/datasets/le-dang1haha/FundusShift (images under their source licences, `metadata/splits_final.csv` = the exact split used in the paper, leakage groups and duplicate lists). Every source keeps its own licence (see `configs/sources.yaml` and `docs/ethics_by_source.md`); `scripts/` and `fsbench/` rebuild the benchmark from the original downloads. Note that OIA-DDR is CC BY-NC-SA 4.0, so derived data is non-commercial.
 
 Build order: `scripts/download_open.sh`, `scripts/extract.sh`, then `fsbench.prepare_labels`, `build_manifest`, `dedup`, `make_splits`, `audit`, `process_images`.
 

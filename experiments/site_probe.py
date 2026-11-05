@@ -45,7 +45,7 @@ def main(argv=None):
         "Group DRO ConvNeXt-T": np.load(Path(a.ckpt) / "_gate_features" / "robust_convnext_t_groupdro_s0.npy"),
         "ERM DINOv2 LoRA": np.load(Path(a.ckpt) / "_gate_features" / "robust_dinov2_lora_erm_s0.npy"),
         "Frozen MedSigLIP (pooled)": np.load(Path(a.features) / "medsiglip.npy").astype(np.float32)[keep],
-        "Frozen MedSigLIP tokens (LANTERN input)": Xs[keep],
+        "Frozen MedSigLIP tokens (LOTUS input)": Xs[keep],
         "LANTERN input after projection": (Xs - (Xs @ U.T) @ U)[keep],
     }
     spk, yk, srck = sp[keep], y[keep], src[keep]
@@ -74,14 +74,14 @@ def main(argv=None):
     names = {"afio_composite": "AFIO", "fives": "FIVES", "hrf": "HRF", "hygd": "HYGD", "palm": "PALM", "papila": "PAPILA", "paraguay_dr": "Paraguay"}
     cols = dict(zip(names, ["#2F6DB5", "#2A9D8F", "#E08A1E", "#8E5BB5", "#C8455A", "#6B8E23", "#7F7F7F"]))
     fig, axs = plt.subplots(1, 3, figsize=(6.6, 2.3))
-    for ax, name in zip(axs, ["Fine-tuned Swin-T", "Frozen MedSigLIP (pooled)", "Frozen MedSigLIP tokens (LANTERN input)"]):
+    for ax, name in zip(axs, ["Fine-tuned Swin-T", "Frozen MedSigLIP (pooled)", "Frozen MedSigLIP tokens (LOTUS input)"]):
         E = TSNE(n_components=2, perplexity=40, init="pca", random_state=0).fit_transform(StandardScaler().fit_transform(feats[name][m]))
         for s_, c_ in cols.items():
             for k, mk in zip(range(3), "o^s"):
                 q = (srck[m] == s_) & (yk[m] == k)
                 if q.any():
                     ax.scatter(E[q, 0], E[q, 1], s=2.5, c=c_, marker=mk, linewidths=0, alpha=.7)
-        ax.set_title(name.replace(" (LANTERN input)", "\n(LANTERN input)"), fontsize=6.5)
+        ax.set_title(name.replace(" (LOTUS input)", "\n(LOTUS input)"), fontsize=6.5)
         ax.set_xticks([]); ax.set_yticks([])
     h = [plt.Line2D([], [], ls="", marker="o", ms=3, color=c_, label=names[s_]) for s_, c_ in cols.items()]
     h += [plt.Line2D([], [], ls="", marker=mk, ms=3, color="#333333", label=cn) for mk, cn in zip("o^s", ["N", "D", "G"])]
