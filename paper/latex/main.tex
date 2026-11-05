@@ -123,7 +123,7 @@ Trained within source & .635 & .718 & .857 & .779 & .757 & .928\\
 \end{tabular}
 \end{table}
 
-\textbf{Finding 4: There is no cheap fix.} DG losses did not close the gap: on ConvNeXt-T, Group DRO, CORAL and SWAD reached 0.707, 0.676 and 0.672 on test. Prompt-learning and adapter models (0.48--0.50) fell below plain zero-shot (0.709). Test-time adaptation (TENT~\cite{tent}, T3A~\cite{t3a}) gave no stable gain, and label-free prior estimation~\cite{saerens} was unstable: it lifted the linear probe to 0.835 but dropped zero-shot to 0.635; over rotations it cut LOTUS to 0.732 (\sups{9}). Multimodal LLMs scored lowest (best: Fundus-R1~\cite{fundusr1}, 0.576).
+\textbf{Finding 4: There is no cheap fix.} DG losses did not close the gap: on ConvNeXt-T, Group DRO, CORAL and SWAD reached 0.707, 0.676 and 0.672 on test. Prompt-learning and adapter models (0.48--0.50) fell below plain zero-shot (0.709). Test-time adaptation (TENT~\cite{tent}, T3A~\cite{t3a}) gave no stable gain, and label-free prior estimation~\cite{saerens} was unstable: it lifted the linear probe to 0.835 but dropped zero-shot to 0.635; over rotations it cut LOTUS to 0.732 (\sups{9}), and label-free per-site feature standardization cut it to 0.693 (\sups{10}). Multimodal LLMs scored lowest (best: Fundus-R1~\cite{fundusr1}, 0.576).
 
 A remedy must therefore generalize without target data and avoid fitting the appearance of the two glaucoma sources.
 
