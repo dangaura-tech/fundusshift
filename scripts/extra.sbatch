@@ -3,7 +3,6 @@
 # After nested and recipe finish:                                                      bash scripts/extra.sbatch after
 # Zip the results:                                                                     bash scripts/extra.sbatch pack
 #SBATCH --job-name=fs-extra
-#SBATCH --partition=ws-ia
 #SBATCH --cpus-per-task=2
 #SBATCH --mem=16G
 #SBATCH --time=24:00:00
@@ -20,6 +19,7 @@ OUT=${OUT:-$ROOT/results/extra}
 ENV=${ENV:-$ROOT/conda_env}
 NNEST=${NNEST:-50}   # workers for nested selection (the heaviest mode)
 NREC=${NREC:-20}     # workers for input versus recipe
+PARTITION=${PARTITION:-ws-ia}   # one or several, comma-separated (e.g. ws-ia,cpu): each job starts on whichever is free first
 
 set -euo pipefail
 PY="$ENV/bin/python"; [ -x "$PY" ] || PY=python
@@ -31,15 +31,15 @@ if [ "${1:-}" = "submit" ]; then
   [ -f "$CODE/experiments/extra_runs.py" ] || { echo "missing: $CODE/experiments/extra_runs.py (copy it there first)"; exit 1; }
   mkdir -p "$ROOT/logs" "$OUT"
   cd "$ROOT"
-  sbatch --array=0-$((NNEST - 1)) --export=ALL,MODE=nested,NW=$NNEST "$CODE/scripts/extra.sbatch"
-  sbatch --array=0-$((NREC - 1)) --export=ALL,MODE=recipe,NW=$NREC "$CODE/scripts/extra.sbatch"
-  sbatch --array=0 --time=02:00:00 --export=ALL,MODE=prior,NW=1 "$CODE/scripts/extra.sbatch"
+  sbatch -p "$PARTITION" --array=0-$((NNEST - 1)) --export=ALL,MODE=nested,NW=$NNEST "$CODE/scripts/extra.sbatch"
+  sbatch -p "$PARTITION" --array=0-$((NREC - 1)) --export=ALL,MODE=recipe,NW=$NREC "$CODE/scripts/extra.sbatch"
+  sbatch -p "$PARTITION" --array=0 --time=02:00:00 --export=ALL,MODE=prior,NW=1 "$CODE/scripts/extra.sbatch"
   exit 0
 fi
 
 if [ "${1:-}" = "after" ]; then   # screening needs the probe logits written by the recipe jobs
   mkdir -p "$ROOT/logs"; cd "$ROOT"
-  sbatch --array=0 --time=02:00:00 --export=ALL,MODE=screen,NW=1 "$CODE/scripts/extra.sbatch"
+  sbatch -p "$PARTITION" --array=0 --time=02:00:00 --export=ALL,MODE=screen,NW=1 "$CODE/scripts/extra.sbatch"
   exit 0
 fi
 
