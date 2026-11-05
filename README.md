@@ -1,4 +1,4 @@
-# FundusShift and LOTUS
+# FundusShift
 
 [![DOI](https://zenodo.org/badge/1444002583.svg)](https://doi.org/10.5281/zenodo.23911966)
 
@@ -9,11 +9,11 @@ Code, results and supplementary material for:
 
 **FundusShift** is a source-held-out benchmark of normal (N), diabetic retinopathy (D) and glaucoma (G) colour fundus photographs from fifteen public collections. It evaluates the accuracy and reliability (calibration, selective prediction, conformal sets) of 818 fine-tuned, frozen, prompt-based and domain-generalization configurations and four multimodal LLMs under one protocol, with 50 random source rotations.
 
-**LOTUS** (Leave-One-source-out Token heads Unified with zero-shot Scores) is a low-capacity method on a frozen MedSigLIP encoder: a bag of linear heads on mean patch tokens, each trained without one development source, fused with zero-shot text scores (about 8,000 trained parameters). Over the 50 rotations it reaches a balanced accuracy of 0.789 against 0.746 for the strongest probe, with an expected calibration error of 0.034 against 0.084. The *initial design* (LOTUS plus a between-site projection) is reported alongside it.
+**LOTUS** is the low-capacity baseline of the paper: on a frozen MedSigLIP encoder, a bag of regularized linear heads on mean patch tokens, each trained without one development source, fused with zero-shot text scores (about 8,000 trained parameters). Over the 50 rotations it reaches a balanced accuracy of 0.789 against 0.746 for the strongest probe, with an expected calibration error of 0.034 against 0.084. Its ablations show that class-balanced short training and text fusion carry the gain, not the bag. The *initial design* (LOTUS plus a between-site projection) is reported alongside it.
 
 **Paper (PDF, 15 pages):** [view online](https://github.com/dangaura-tech/fundusshift/blob/main/paper/main.pdf) · [download](https://github.com/dangaura-tech/fundusshift/raw/main/paper/main.pdf)
 
-**Supplementary material (PDF, 37 pages):** [view online](https://github.com/dangaura-tech/fundusshift/blob/main/paper/supplementary.pdf) · [download](https://github.com/dangaura-tech/fundusshift/raw/main/paper/supplementary.pdf)
+**Supplementary material (PDF, 40 pages):** [view online](https://github.com/dangaura-tech/fundusshift/blob/main/paper/supplementary.pdf) · [download](https://github.com/dangaura-tech/fundusshift/raw/main/paper/supplementary.pdf)
 
 ## Main results
 
@@ -21,6 +21,10 @@ Code, results and supplementary material for:
 - Choosing the configuration in each rotation from development data only (leave-one-source-out) still gave 0.780 against 0.746 (39 of 50) and ECE 0.035 (47 of 50).
 - Validation barely ranks fine-tuned models at unseen sources (Spearman 0.05); development-tuned risk, conformal and specificity targets break at new sources; glaucoma is the weakest class.
 - Leave-one-source-out thresholds kept a 10% risk target on 42 of 50 rotations instead of 19.
+- Fine-tuned ConvNeXt-T (CE, Group DRO), retrained on ten rotations, trailed LOTUS on all ten (bAcc 0.663 and 0.652 against 0.781; ECE 0.136 and 0.113 against 0.038).
+- The linear probe fused with the same text scores comes within 0.012 of LOTUS; the bag adds no more than seed averaging; class-balanced resampling is the key recipe component.
+- External cohort Messidor-2 (France, DR; protocol fixed before scoring): DR vs normal AUROC 0.823 (referable DR 0.948), ECE 0.058. G1020 (Germany, glaucoma) was not learnable from the features even within the cohort, so it cannot test glaucoma transfer.
+- Label-free per-site feature standardization lowered bAcc on all 50 rotations (negative result).
 
 ## Repository layout
 
@@ -32,8 +36,8 @@ Code, results and supplementary material for:
 | `baselines/`, `experiments/` | Feature extraction, all baselines, calibration, evaluation, statistics, LOTUS and its ablations |
 | `results/` | Saved result tables behind every number in the paper (CSV; large tables gzipped); LOTUS in `results/revision/`, `results/lotus/` and `results/extra/` |
 | `paper/main.pdf`, `paper/supplementary.pdf` | The paper and the supplementary material |
-| `paper/latex/` | LaTeX sources (`main.tex`, `supplementary.tex`, `refs.bib`), generated tables and figures, and the scripts that build them: `make_assets.py` (main paper), `make_supp.py` and `make_supp_extra.py` (supplement) |
-| `docs/` | Evaluation protocol, datasheet, frozen configuration of the initial design, pretraining-overlap and ethics checks |
+| `paper/latex/` | LaTeX sources (`main.tex`, `supplementary.tex`, `refs.bib`), generated tables and figures, and the scripts that build them: `make_assets.py` (main paper), `make_supp.py`, `make_supp_extra.py` and `make_supp_review.py` (supplement) |
+| `docs/` | Evaluation protocols (`protocol.md`, `protocol_external.md`, `protocol_site_adapt.md`), datasheet, frozen configuration of the initial design, pretraining-overlap and ethics checks |
 
 ## Installation
 
@@ -102,11 +106,23 @@ python -m experiments.lotus_rotation --bench $DATA/bench --logits results/revisi
 python -m experiments.review_tables --bench $DATA/bench --images $DATA/processed --runs $DATA/runs --out results/lotus/review --method-dir lotus --method-name LOTUS --fig-dir paper/latex/figures
 ```
 
-**6. Tables, figures and PDFs**
+**6. External cohort, baselines and ablations added in the final version** (CPU except `external extract` and `rot_finetune`)
+```
+python -m experiments.external prep|extract|dedup|evaluate --root $ROOT      # Messidor-2 and G1020; scripts/external.sbatch
+python -m experiments.external_learnability --root $ROOT                       # within-cohort check
+python -m experiments.site_adapt rotation|external|summary --root $ROOT        # label-free site standardization
+python -m experiments.review_baselines rotation|external|summary --root $ROOT  # probe + text, seed bag
+python -m experiments.recipe_ablation --root $ROOT [--summary]                 # head recipe components
+python -m experiments.rot_finetune --root $ROOT --k K --method ce|groupdro     # scripts/rot_finetune.sbatch
+```
+`$ROOT` holds `data/`, `runs/` and `results/` as on the cluster.
+
+**7. Tables, figures and PDFs**
 ```
 FS_DATA=$DATA FS_RUNS=$DATA/runs python paper/latex/make_assets.py
 FS_DATA=$DATA python paper/latex/make_supp.py
 FS_DATA=$DATA FS_RUNS=$DATA/runs python paper/latex/make_supp_extra.py
+python paper/latex/make_supp_review.py
 cd paper/latex && latexmk -pdf main.tex supplementary.tex
 ```
 
@@ -125,6 +141,9 @@ cd paper/latex && latexmk -pdf main.tex supplementary.tex
 | Label-scope analysis | `experiments/scope.py` | `results/scope/` |
 | Projection analysis, site and disease probes | `experiments/review_checks.py`, `experiments/site_probe.py` | `results/review/` |
 | Patch-level evidence maps (initial design) | `experiments/evidence_maps.py` | figure in the supplementary material |
+| External cohort (Sec. 6.6; Suppl. S10) | `experiments/external.py`, `experiments/external_learnability.py` | `results/external/` |
+| Site standardization (Suppl. S10) | `experiments/site_adapt.py` | `results/site_adapt/` |
+| Probe + text, seed bag, recipe ablation, fine-tuning over rotations (Sec. 6.2; Suppl. S9) | `experiments/review_baselines.py`, `experiments/recipe_ablation.py`, `experiments/rot_finetune.py` | `results/review_baselines/`, `results/recipe_ablation/`, `results/rot_finetune/` |
 
 ## Licence
 
