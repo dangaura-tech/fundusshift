@@ -783,6 +783,23 @@ Configuration & Dev & Test bAcc & Eq-src & Recall G & NLL (TS) & Ch\'ak\d{s}u\\
 \end{tabular}}
 \end{table}
 
+
+\subsection{Follow-up: clean selection, input versus recipe, prior correction, screening}\label{s:followup}
+All on the 50 rotations (\texttt{experiments/extra\_runs.py}, \texttt{results/extra}).
+\begin{table}[h]\caption{Follow-up results, means over rotations. Nested: arm chosen per rotation by leave-one-source-out on development only (LOTUS 29, initial design 8, single head + text 7, other 6). EM: label-free prior correction per test source.}\label{tab:followup}\centering\scriptsize
+\begin{tabular}{lcccc}\toprule
+Model & bAcc & ECE (TS) & bAcc after EM & ECE after EM\\\midrule
+Nested selection (no held-out data) & 0.780 & 0.035 & -- & --\\
+LOTUS (tokens) & 0.789 & 0.034 & 0.732 & 0.210\\
+LOTUS on pooled features & 0.789 & 0.035 & 0.737 & 0.204\\
+LOTUS head recipe, pooled, no bag/text & 0.763 & 0.055 & 0.720 & 0.220\\
+Probe recipe on tokens & 0.752 & 0.077 & 0.755 & 0.176\\
+Linear probe (pooled) & 0.746 & 0.084 & 0.750 & 0.182\\\bottomrule
+\end{tabular}\end{table}
+\reading{Selecting without held-out data costs 0.009 and keeps the lead over the probe (39 of 50) and the calibration gain (47 of 50). The recipe and text, not the token input, carry the gain. Prior correction helps no model reliably and ruins calibration.}
+
+\textbf{Screening thresholds.} Thresholds on $P(G)$ set on Cal-B for 90\% specificity gave, over rotations, test specificity 0.837 and sensitivity 0.857 for LOTUS (probe: 0.789 and 0.860), but on Ch\'ak\d{s}u specificity 0.336 at sensitivity 0.954 (probe: 0.622 and 0.637). On the published split, 95\% specificity on Cal-B gave 0.882 on test with sensitivity 0.798 (probe 0.865 and 0.708). Specificity targets, like risk targets, do not hold at new sources and must be set locally.
+
 \section{Reproducibility}\label{s:repro}
 \sloppy
 Code, saved result tables and this document are archived at \url{https://doi.org/10.5281/zenodo.23979471} (GitHub: \url{https://github.com/dangaura-tech/fundusshift}). The README maps each result to its script and table file. LOTUS and its ablation over the rotations and regions are produced by \texttt{experiments/revision\_runs.py} (saved in \texttt{results/revision}); its published-split evaluation and paired tests by \texttt{experiments/lotus\_eval.py}, its rotation promises by \texttt{experiments/lotus\_rotation.py}, and its per-source and disease-level tables by \texttt{experiments/review\_tables.py} (saved in \texttt{results/lotus}). The evaluation protocol, including the selection rules written before each later attempt, is \texttt{docs/protocol.md}. Images are obtained from their original publishers; split tables are available from the author on request.
