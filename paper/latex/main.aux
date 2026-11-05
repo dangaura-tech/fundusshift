@@ -1,0 +1,222 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand*\HyPL@Entry[1]{}
+\HyPL@Entry{0<</S/D>>}
+\@writefile{toc}{\contentsline {title}{FundusShift and LOTUS: Benchmarking and Improving Fundus Disease Classification at Unseen Sources}{1}{chapter.1}\protected@file@percent }
+\@writefile{toc}{\authcount {1}}
+\@writefile{toc}{\contentsline {author}{Dang Truong Minh Le}{1}{chapter.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1.1}\protected@file@percent }
+\citation{drgen,gdrnet}
+\citation{domainbed,wilds}
+\citation{retfound,flair,medgemma}
+\citation{drgen}
+\citation{gdrnet}
+\citation{domainbed,wilds}
+\citation{groupdro}
+\citation{coral}
+\citation{swad}
+\citation{retfound}
+\citation{flair}
+\citation{biomedclip}
+\citation{medgemma}
+\citation{dinov2}
+\citation{siglip}
+\citation{coop}
+\citation{tip}
+\citation{wiseft}
+\citation{fundusr1}
+\citation{lpft}
+\citation{rpattn}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Images from eight public sources (class in brackets), showing differences in field of view, colour and quality.}}{2}{figure.1.1}\protected@file@percent }
+\newlabel{fig:story}{{1}{2}{Images from eight public sources (class in brackets), showing differences in field of view, colour and quality}{figure.1.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.1.2}\protected@file@percent }
+\citation{guo2017}
+\citation{fts}
+\citation{mdca,mbls}
+\citation{sgr}
+\citation{lac}
+\citation{wald2021}
+\citation{tent,t3a}
+\citation{saerens}
+\citation{nap}
+\citation{bangladesh}
+\citation{ddr}
+\citation{deepdrid}
+\citation{grape}
+\citation{idrid}
+\citation{jichi}
+\citation{sustech}
+\citation{afio}
+\citation{fives}
+\citation{hrf}
+\citation{hygd}
+\citation{palm}
+\citation{papila}
+\citation{paraguay}
+\citation{chaksu}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces FundusShift sources and images by class: normal (N), diabetic retinopathy (D), glaucoma (G). Development (Dev) sources are split into train, validation and calibration. A further 861 out-of-scope images form an open-set probe (Suppl.\nobreakspace  {}S7).}}{3}{table.1.1}\protected@file@percent }
+\newlabel{tab:data}{{1}{3}{FundusShift sources and images by class: normal (N), diabetic retinopathy (D), glaucoma (G). Development (Dev) sources are split into train, validation and calibration. A further 861 out-of-scope images form an open-set probe (\sups {7})}{table.1.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}The FundusShift Benchmark}{3}{section.1.3}\protected@file@percent }
+\newlabel{sec:bench}{{3}{3}{The FundusShift Benchmark}{section.1.3}{}}
+\citation{mdca}
+\citation{mbls}
+\citation{retfound}
+\citation{mdca,mbls}
+\citation{coop}
+\citation{tip}
+\citation{groupdro}
+\citation{coral}
+\citation{swad}
+\citation{convnext}
+\citation{dinov2}
+\citation{wiseft}
+\citation{fundusr1}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Coverage of the benchmark on test, FLAIR excluded (reported apart). Configs: distinct (setting, encoder, configuration). Runs: including seeds. Selection: what validation chooses.}}{4}{table.1.2}\protected@file@percent }
+\newlabel{tab:cover}{{2}{4}{Coverage of the benchmark on test, FLAIR excluded (reported apart). Configs: distinct (setting, encoder, configuration). Runs: including seeds. Selection: what validation chooses}{table.1.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Diagnosis: What Breaks at an Unseen Source}{4}{section.1.4}\protected@file@percent }
+\newlabel{sec:diag}{{4}{4}{Diagnosis: What Breaks at an Unseen Source}{section.1.4}{}}
+\citation{lac}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Left: validation against test bAcc for 816 configurations (FLAIR, multimodal LLMs and the two NLL-rule sensitivity runs excluded). Most points lie well below the diagonal, and the fine-tuning cluster is nearly flat. Right: bAcc per unseen source for LOTUS (Sec.\nobreakspace  {}\ref  {sec:lotus}) and the validation-selected representatives; single-class sources show recall.}}{5}{figure.1.2}\protected@file@percent }
+\newlabel{fig:val}{{2}{5}{Left: validation against test bAcc for 816 configurations (FLAIR, multimodal LLMs and the two NLL-rule sensitivity runs excluded). Most points lie well below the diagonal, and the fine-tuning cluster is nearly flat. Right: bAcc per unseen source for LOTUS (Sec.~\ref {sec:lotus}) and the validation-selected representatives; single-class sources show recall}{figure.1.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Fifty source rotations. Left: test bAcc per rotation, mean as a red bar; LP: linear probe. Right: internal estimates on held-back Cal-B against unseen test sources, means over rotations, after TS. Dashed lines mark the nominal target.}}{5}{figure.1.3}\protected@file@percent }
+\newlabel{fig:rot}{{3}{5}{Fifty source rotations. Left: test bAcc per rotation, mean as a red bar; LP: linear probe. Right: internal estimates on held-back Cal-B against unseen test sources, means over rotations, after TS. Dashed lines mark the nominal target}{figure.1.3}{}}
+\citation{tent}
+\citation{t3a}
+\citation{saerens}
+\citation{fundusr1}
+\citation{medgemma}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Trained on development sources against trained within the target source (cross-validated), logistic regression on frozen features, mean bAcc over nine encoders. Within-source learning can use source-specific cues, so it is a reference level, not a strict upper bound.}}{6}{table.1.3}\protected@file@percent }
+\newlabel{tab:ceiling}{{3}{6}{Trained on development sources against trained within the target source (cross-validated), logistic regression on frozen features, mean bAcc over nine encoders. Within-source learning can use source-specific cues, so it is a reference level, not a strict upper bound}{table.1.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces LOTUS (Leave-One-source-out Token heads Unified with zero-shot Scores). Only the linear heads are trained, about 8,000 parameters in all; the encoder (about 0.4B parameters) and prompt banks are fixed. Low capacity refers to the trained part only.}}{6}{figure.1.4}\protected@file@percent }
+\newlabel{fig:arch}{{4}{6}{LOTUS (Leave-One-source-out Token heads Unified with zero-shot Scores). Only the linear heads are trained, about 8,000 parameters in all; the encoder (about 0.4B parameters) and prompt banks are fixed. Low capacity refers to the trained part only}{figure.1.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}LOTUS}{6}{section.1.5}\protected@file@percent }
+\newlabel{sec:lotus}{{5}{6}{LOTUS}{section.1.5}{}}
+\citation{rpattn}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Development ablation of the initial design (leave-one-development-source-out, three seeds, equal-site mean; no test data). False G: non-glaucoma images predicted G (not recorded for text only).}}{7}{table.1.4}\protected@file@percent }
+\newlabel{tab:abl}{{4}{7}{Development ablation of the initial design (leave-one-development-source-out, three seeds, equal-site mean; no test data). False G: non-glaucoma images predicted G (not recorded for text only)}{table.1.4}{}}
+\newlabel{eq:fusion}{{1}{7}{LOTUS}{equation.1.5.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Fifty source rotations, same partitions for all methods, TS on each rotation's Cal-A, one training seed per rotation. Risk: at the threshold for 80\% coverage fitted on Cal-B. LAC: coverage at nominal 0.90. LP: linear probe with class-weighted cross-entropy. Last four columns: LOTUS minus the row, and rotations where LOTUS is better. With three seeds, LOTUS against the MedSigLIP LP gives $+0.043$ bAcc (higher on 43/50) and lower ECE on 47/50 (Suppl.\nobreakspace  {}S6).}}{8}{table.1.5}\protected@file@percent }
+\newlabel{tab:rot}{{5}{8}{Fifty source rotations, same partitions for all methods, TS on each rotation's Cal-A, one training seed per rotation. Risk: at the threshold for 80\% coverage fitted on Cal-B. LAC: coverage at nominal 0.90. LP: linear probe with class-weighted cross-entropy. Last four columns: LOTUS minus the row, and rotations where LOTUS is better. With three seeds, LOTUS against the MedSigLIP LP gives $+0.043$ bAcc (higher on 43/50) and lower ECE on 47/50 (\sups {6})}{table.1.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Evaluating LOTUS}{8}{section.1.6}\protected@file@percent }
+\newlabel{sec:eval}{{6}{8}{Evaluating LOTUS}{section.1.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Source Rotations}{8}{subsection.1.6.1}\protected@file@percent }
+\newlabel{sec:rot}{{6.1}{8}{Source Rotations}{subsection.1.6.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}What Carries the Gain}{8}{subsection.1.6.2}\protected@file@percent }
+\newlabel{sec:abl}{{6.2}{8}{What Carries the Gain}{subsection.1.6.2}{}}
+\citation{medgemma}
+\citation{medgemma}
+\citation{medgemma}
+\citation{dinov2}
+\citation{groupdro}
+\citation{convnext}
+\citation{convnext}
+\citation{coral}
+\citation{convnext}
+\citation{swad}
+\citation{convnext}
+\citation{swin}
+\citation{wiseft}
+\citation{siglip2}
+\citation{dinov2}
+\citation{coop}
+\citation{biomedclip}
+\citation{coop}
+\citation{siglip}
+\citation{tip}
+\citation{biomedclip}
+\citation{coop}
+\citation{siglip}
+\citation{tip}
+\citation{biomedclip}
+\citation{flair}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Ablation over the 50 rotations, same splits and recipe, TS, means over three seeds. Last two columns: LOTUS minus the row in bAcc, and rotations where LOTUS is higher. The full factorial (nine arms, with AUROC, AURC and risk) is in Suppl.\nobreakspace  {}S6.}}{9}{table.1.6}\protected@file@percent }
+\newlabel{tab:ablrot}{{6}{9}{Ablation over the 50 rotations, same splits and recipe, TS, means over three seeds. Last two columns: LOTUS minus the row in bAcc, and rotations where LOTUS is higher. The full factorial (nine arms, with AUROC, AURC and risk) is in \sups {6}}{table.1.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Published Split}{9}{subsection.1.6.3}\protected@file@percent }
+\newlabel{sec:pub}{{6.3}{9}{Published Split}{subsection.1.6.3}{}}
+\citation{sgr}
+\citation{sgr}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Published split, means over three seeds; raw scores unless marked TS. Representatives are chosen by validation; LOTUS and the initial design are not untouched estimates (Sec.\nobreakspace  {}\ref  {sec:lotus}); their Val is the validation split of the development sources. Image-level intervals in the text are conditional on these seven sources. $^\dagger $FLAIR's pretraining includes five FundusShift sources (FIVES, HRF, PAPILA, Paraguay, Ch\'ak\d {s}u); reference only.}}{10}{table.1.7}\protected@file@percent }
+\newlabel{tab:main}{{7}{10}{Published split, means over three seeds; raw scores unless marked TS. Representatives are chosen by validation; LOTUS and the initial design are not untouched estimates (Sec.~\ref {sec:lotus}); their Val is the validation split of the development sources. Image-level intervals in the text are conditional on these seven sources. $^\dagger $FLAIR's pretraining includes five FundusShift sources (FIVES, HRF, PAPILA, Paraguay, Ch\'ak\d {s}u); reference only}{table.1.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Calibration and Selective Prediction}{10}{subsection.1.6.4}\protected@file@percent }
+\newlabel{sec:rel}{{6.4}{10}{Calibration and Selective Prediction}{subsection.1.6.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Reliability after TS on the published split; thresholds and quantiles fitted on Cal-B. Cov.\nobreakspace  {}80: threshold for 80\% coverage, with coverage, risk, and rates of glaucoma and DR images accepted as normal (over all images of the class). Risk 10: selective-risk bound of 10\%. LAC: nominal 0.90, with mean set size. Ch\'ak\d {s}u has no D images.}}{11}{table.1.8}\protected@file@percent }
+\newlabel{tab:rel}{{8}{11}{Reliability after TS on the published split; thresholds and quantiles fitted on Cal-B. Cov.~80: threshold for 80\% coverage, with coverage, risk, and rates of glaucoma and DR images accepted as normal (over all images of the class). Risk 10: selective-risk bound of 10\%. LAC: nominal 0.90, with mean set size. Ch\'ak\d {s}u has no D images}{table.1.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Promises on unseen sources over 50 rotations, LOTUS after TS. Left: threshold for 80\% coverage. Middle: selective guaranteed risk (SGR\nobreakspace  {}\cite  {sgr}, $\delta =0.05$) threshold for risk $\le $ 10\%, with the rotations where test risk held and the rate of disease images answered normal (FR). Right: LAC coverage at nominal 0.90.}}{11}{table.1.9}\protected@file@percent }
+\newlabel{tab:cert}{{9}{11}{Promises on unseen sources over 50 rotations, LOTUS after TS. Left: threshold for 80\% coverage. Middle: selective guaranteed risk (SGR~\cite {sgr}, $\delta =0.05$) threshold for risk $\le $ 10\%, with the rotations where test risk held and the rate of disease images answered normal (FR). Right: LAC coverage at nominal 0.90}{table.1.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}Keeping Promises with a Shift-Aware Reference}{11}{subsection.1.6.5}\protected@file@percent }
+\newlabel{sec:cert}{{6.5}{11}{Keeping Promises with a Shift-Aware Reference}{subsection.1.6.5}{}}
+\citation{messidor2}
+\citation{g1020}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.6}Two External Cohorts}{12}{subsection.1.6.6}\protected@file@percent }
+\newlabel{sec:ext}{{6.6}{12}{Two External Cohorts}{subsection.1.6.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Discussion and Limitations}{12}{section.1.7}\protected@file@percent }
+\newlabel{sec:disc}{{7}{12}{Discussion and Limitations}{section.1.7}{}}
+\bibstyle{splncs04}
+\bibdata{refs}
+\bibcite{hygd}{1}
+\bibcite{drgen}{2}
+\bibcite{g1020}{3}
+\bibcite{hrf}{4}
+\bibcite{paraguay}{5}
+\bibcite{swad}{6}
+\bibcite{gdrnet}{7}
+\bibcite{messidor2}{8}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{13}{section.1.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{Disclosure of Interests.}{13}{section*.2}\protected@file@percent }
+\bibcite{fundusr1}{9}
+\bibcite{palm}{10}
+\bibcite{sgr}{11}
+\bibcite{domainbed}{12}
+\bibcite{guo2017}{13}
+\bibcite{afio}{14}
+\bibcite{mdca}{15}
+\bibcite{grape}{16}
+\bibcite{t3a}{17}
+\bibcite{fives}{18}
+\bibcite{wilds}{19}
+\bibcite{fts}{20}
+\bibcite{papila}{21}
+\bibcite{lpft}{22}
+\bibcite{chaksu}{23}
+\bibcite{rpattn}{24}
+\bibcite{ddr}{25}
+\bibcite{sustech}{26}
+\bibcite{mbls}{27}
+\bibcite{deepdrid}{28}
+\bibcite{swin}{29}
+\bibcite{convnext}{30}
+\bibcite{dinov2}{31}
+\bibcite{idrid}{32}
+\bibcite{bangladesh}{33}
+\bibcite{lac}{34}
+\bibcite{saerens}{35}
+\bibcite{groupdro}{36}
+\bibcite{medgemma}{37}
+\bibcite{flair}{38}
+\bibcite{nap}{39}
+\bibcite{coral}{40}
+\bibcite{jichi}{41}
+\bibcite{siglip2}{42}
+\bibcite{wald2021}{43}
+\bibcite{tent}{44}
+\bibcite{wiseft}{45}
+\bibcite{siglip}{46}
+\bibcite{tip}{47}
+\bibcite{biomedclip}{48}
+\bibcite{coop}{49}
+\bibcite{retfound}{50}
+\gdef \@abspage@last{15}

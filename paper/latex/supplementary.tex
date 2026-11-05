@@ -798,8 +798,24 @@ Linear probe (pooled) & 0.746 & 0.084 & 0.750 & 0.182\\\bottomrule
 \end{tabular}\end{table}
 \reading{Selecting without held-out data costs 0.009 and keeps the lead over the probe (39 of 50) and the calibration gain (47 of 50). The recipe and text, not the token input, carry the gain. Prior correction helps no model reliably and ruins calibration.}
 
-\textbf{Baselines added after review} (\texttt{experiments/review\_baselines.py}, \texttt{results/review\_baselines}; 50 rotations, seed 0, same splits and evaluation). The rotation linear probe fused 1/2 + 1/2 with LOTUS's text scores reached bAcc 0.777, ECE 0.043, NLL 0.534 and recall G 0.666; LOTUS (0.788, 0.034, 0.508, 0.708) was ahead by $0.012\pm0.021$ (higher on 35 of 50; ECE lower on 33). One LOTUS head on all development sources, six seeds averaged, plus text, reached 0.786, ECE 0.035 and recall G 0.695; LOTUS was ahead by $0.002\pm0.007$ (27 of 50).
-\reading{Most of LOTUS's gain over the probe comes from text fusion (0.745 to 0.777) and the head recipe (0.777 to 0.788); the leave-one-source-out construction adds no more than seed averaging. LOTUS is best read as a regularized linear-head ensemble fused with zero-shot text.}
+\textbf{Simple baselines} (\texttt{experiments/review\_baselines.py}, \texttt{results/review\_baselines}; 50 rotations, seed 0, same splits and evaluation). The rotation linear probe fused 1/2 + 1/2 with LOTUS's text scores reached bAcc 0.777, ECE 0.043, NLL 0.534 and recall G 0.666; LOTUS (0.788, 0.034, 0.508, 0.708) was ahead by $0.012\pm0.021$ (higher on 35 of 50; ECE lower on 33). One LOTUS head on all development sources, six seeds averaged, plus text, reached 0.786, ECE 0.035 and recall G 0.695; LOTUS was ahead by $0.002\pm0.007$ (27 of 50).
+\reading{Added to the probe, text fusion gives 0.745 to 0.777 and the head recipe 0.777 to 0.788; removed from LOTUS, text costs 0.010 and the recipe more (Table~\ref{tab:abl}), so the split depends on the order. The leave-one-source-out construction adds no more than seed averaging. LOTUS is best read as a regularized linear-head ensemble fused with zero-shot text.}
+
+\textbf{Recipe components} (\texttt{experiments/recipe\_ablation.py}, \texttt{results/recipe\_ablation}). One head on all development sources plus text (0.786, within 0.002 of LOTUS), one component changed at a time, 50 rotations, seed 0.
+\begin{table}[h]\centering\scriptsize\caption{Head recipe ablation. Reference: smoothing 0.1, class-balanced resampling, 12 epochs, AdamW lr $3\cdot10^{-4}$, weight decay $10^{-2}$, best epoch by validation bAcc. Last column: rotations where the reference is higher.}\label{tab:recipe}
+\begin{tabular}{@{}lrrrrrr@{}}\toprule
+Variant & bAcc & $\Delta$ & ECE & NLL & Recall G & Ref.\ higher\\\midrule
+Reference & .786 & -- & .035 & .510 & .696 & --\\
+No class balancing & .764 & $-$.021 & .041 & .520 & .606 & 41/50\\
+lr $10^{-3}$ & .777 & $-$.009 & .037 & .511 & .657 & 39/50\\
+24 epochs & .779 & $-$.007 & .037 & .507 & .663 & 34/50\\
+Last epoch (no selection) & .784 & $-$.002 & .035 & .508 & .687 & 20/50\\
+Weight decay 0 & .785 & .000 & .035 & .510 & .696 & 21/50\\
+No smoothing & .786 & +.001 & .036 & .525 & .717 & 24/50\\
+Weight decay $10^{-1}$ & .786 & +.001 & .035 & .509 & .699 & 14/50\\
+4 epochs & .791 & +.006 & .034 & .523 & .741 & 20/50\\\bottomrule
+\end{tabular}\end{table}
+\reading{Class-balanced resampling carries most of the recipe, mainly through recall G; less training (fewer steps, lower learning rate) helps, consistent with low capacity; smoothing and weight decay do not matter. The 4-epoch variant is better but was found after the fact and is not adopted.}
 
 \textbf{Screening thresholds.} Thresholds on $P(G)$ set on Cal-B for 90\% specificity gave, over rotations, test specificity 0.837 and sensitivity 0.857 for LOTUS (probe: 0.789 and 0.860), but on Ch\'ak\d{s}u specificity 0.336 at sensitivity 0.954 (probe: 0.622 and 0.637). On the published split, 95\% specificity on Cal-B gave 0.882 on test with sensitivity 0.798 (probe 0.865 and 0.708). Specificity targets, like risk targets, do not hold at new sources and must be set locally.
 
@@ -845,7 +861,7 @@ G1020 & LOTUS & .585 & & & & & .709 & .584 & 2.279 & .907 & .123 & .959 & .074\\
  & ConvNeXt-T GDRO & .517 & & & & & .695 & .633 & 2.830 & .754 & .269 & .862 & .155\\\bottomrule
 \end{tabular}\end{table}
 D1--D4: recall D by ICDR grade on Messidor-2 (mild DR is the hard grade for every model). Seed standard deviation of bAcc: LOTUS 0.011 (Messidor-2) and 0.005 (G1020); ConvNeXt-T 0.008--0.039. Paired bootstrap of bAcc (2,000 resamples, seed-averaged probabilities), LOTUS minus comparator: Messidor-2, initial design $-0.019$ [$-0.029$, $-0.009$], zero-shot +0.026 [0.008, 0.043], CE $-0.003$ [$-0.026$, 0.021], Group DRO +0.031 [0.007, 0.055]; G1020, initial design 0.000 [$-0.009$, 0.008], zero-shot +0.055, CE +0.052, Group DRO +0.043 (all intervals above 0), differences between models that all sit at chance AUROC.
-$^*$Added after review (\texttt{experiments/review\_baselines.py}): the linear probe of the rotations (class-weighted cross-entropy on pooled features), refit on the published split with seeds 0--2, alone and fused 1/2 + 1/2 with the same text scores as LOTUS; same TS and evaluation; LAC and FD were not computed for them. Paired bootstrap intervals use seed-averaged probabilities, so they need not equal differences of the seed-mean bAcc in the table.
+$^*$From \texttt{experiments/review\_baselines.py}: the linear probe of the rotations (class-weighted cross-entropy on pooled features), refit on the published split with seeds 0--2, alone and fused 1/2 + 1/2 with the same text scores as LOTUS; same TS and evaluation; LAC and FD were not computed for them. Paired bootstrap intervals use seed-averaged probabilities, so they need not equal differences of the seed-mean bAcc in the table.
 
 \textbf{Is G1020 learnable at all?} As a diagnostic (no model of the paper is changed), a logistic regression on the same frozen MedSigLIP tokens was trained and tested within each cohort by 5-fold cross-validation (5 repetitions, three regularization strengths; \texttt{experiments/external\_learnability.py}). Messidor-2 DR vs normal reached AUROC 0.89--0.93; G1020 glaucoma vs non-glaucoma reached 0.46--0.47. G1020's labels are therefore not recoverable from these image features even with in-cohort training; on inspection its non-glaucoma class includes eyes with other retinal findings, which explains the many DR predictions. G1020 is a test of label definition rather than of glaucoma transfer, and glaucoma transfer to non-Asian populations remains untested.
 \reading{DR transfers in ranking and calibration but not in decisions: normals are over-called, as glaucoma (14\% of all images predicted G) or DR, and coverage and LAC promises fail as at the test sources. The plain probe ranks DR as well as LOTUS but is worse calibrated; fused with text it matches LOTUS on Messidor-2.}

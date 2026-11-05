@@ -13,10 +13,10 @@ Atwany, M., Yaqub, M.: {DRGen}: Domain generalization in diabetic retinopathy
   classification. In: Medical Image Computing and Computer Assisted
   Intervention -- MICCAI 2022. pp. 635--644. LNCS, Springer (2022)
 
-\bibitem{leace}
-Belrose, N., Schneider-Joseph, D., Ravfogel, S., et~al.: {LEACE}: Perfect
-  linear concept erasure in closed form. In: Advances in Neural Information
-  Processing Systems. vol.~36 (2023)
+\bibitem{g1020}
+Bajwa, M., Singh, G., Neumeier, W., et~al.: {G1020}: A benchmark retinal fundus
+  image dataset for computer-aided glaucoma detection. In: International Joint
+  Conference on Neural Networks (IJCNN). pp.~1--7 (2020)
 
 \bibitem{hrf}
 Budai, A., Bock, R., Maier, A., et~al.: Robust vessel segmentation in fundus
@@ -38,6 +38,11 @@ Che, H., Cheng, Y., Jin, H., Chen, H.: Towards generalizable diabetic
   Computer Assisted Intervention -- MICCAI 2023. pp. 430--440. LNCS, Springer
   (2023)
 
+\bibitem{messidor2}
+Decenci{\`e}re, E., Zhang, X., Cazuguel, G., et~al.: Feedback on a publicly
+  distributed image database: The {Messidor} database. Image Analysis \&
+  Stereology  \textbf{33}(3),  231--234 (2014)
+
 \bibitem{fundusr1}
 Deng, Y., Wei, Q., Qian, K., et~al.: {Fundus-R1}: Training a fundus-reading
   {MLLM} on public data. arXiv:2604.08322 (2026)
@@ -51,19 +56,9 @@ Fang, H., Li, F., Wu, J., et~al.: Open fundus photograph dataset with
 Geifman, Y., El-Yaniv, R.: Selective classification for deep neural networks.
   In: Advances in Neural Information Processing Systems. vol.~30 (2017)
 
-\bibitem{gong2021}
-Gong, Y., Lin, X., Yao, Y., et~al.: Confidence calibration for domain
-  generalization under covariate shift. In: IEEE/CVF International Conference
-  on Computer Vision. pp. 8958--8967 (2021)
-
 \bibitem{domainbed}
 Gulrajani, I., Lopez-Paz, D.: In search of lost domain generalization. In:
   International Conference on Learning Representations (2021)
-
-\bibitem{gulshan2016}
-Gulshan, V., Peng, L., Coram, M., et~al.: Development and validation of a deep
-  learning algorithm for detection of diabetic retinopathy in retinal fundus
-  photographs. JAMA  \textbf{316}(22),  2402--2410 (2016)
 
 \bibitem{guo2017}
 Guo, C., Pleiss, G., Sun, Y., Weinberger, K.Q.: On calibration of modern neural
@@ -163,16 +158,6 @@ Oquab, M., Darcet, T., Moutakanni, T., et~al.: {DINOv2}: Learning robust visual
   features without supervision. Transactions on Machine Learning Research
   (2024)
 
-\bibitem{ovadia2019}
-Ovadia, Y., Fertig, E., Ren, J., et~al.: Can you trust your model's
-  uncertainty? {E}valuating predictive uncertainty under dataset shift. In:
-  Advances in Neural Information Processing Systems. vol.~32 (2019)
-
-\bibitem{naeini}
-Pakdaman~Naeini, M., Cooper, G.F., Hauskrecht, M.: Obtaining well calibrated
-  probabilities using {B}ayesian binning. In: Proceedings of the AAAI
-  Conference on Artificial Intelligence. vol.~29 (2015)
-
 \bibitem{idrid}
 Porwal, P., Pachade, S., Kamble, R., et~al.: Indian diabetic retinopathy image
   dataset ({IDRiD}): A database for diabetic retinopathy screening research.
@@ -181,12 +166,6 @@ Porwal, P., Pachade, S., Kamble, R., et~al.: Indian diabetic retinopathy image
 \bibitem{bangladesh}
 Rashid, M.R., et~al.: Eye disease image dataset. Mendeley Data (2024).
   \doi{10.17632/s9bfhswzjb.1}
-
-\bibitem{inlp}
-Ravfogel, S., Elazar, Y., Gonen, H., et~al.: Null it out: Guarding protected
-  attributes by iterative nullspace projection. In: Proceedings of the 58th
-  Annual Meeting of the Association for Computational Linguistics. pp.
-  7237--7256 (2020)
 
 \bibitem{lac}
 Sadinle, M., Lei, J., Wasserman, L.: Least ambiguous set-valued classifiers
@@ -227,21 +206,6 @@ Takahashi, H., Tampo, H., Arai, Y., et~al.: Applying artificial intelligence to
   disease staging: Deep learning for improved staging of diabetic retinopathy.
   PLOS ONE  \textbf{12}(6),  e0179790 (2017)
 
-\bibitem{teo2021}
-Teo, Z.L., Tham, Y.C., Yu, M., et~al.: Global prevalence of diabetic
-  retinopathy and projection of burden through 2045. Ophthalmology
-  \textbf{128}(11),  1580--1591 (2021)
-
-\bibitem{tham2014}
-Tham, Y.C., Li, X., Wong, T.Y., et~al.: Global prevalence of glaucoma and
-  projections of glaucoma burden through 2040. Ophthalmology  \textbf{121}(11),
-   2081--2090 (2014)
-
-\bibitem{covconformal}
-Tibshirani, R.J., Barber, R.F., Cand{\`e}s, E.J., Ramdas, A.: Conformal
-  prediction under covariate shift. In: Advances in Neural Information
-  Processing Systems. vol.~32 (2019)
-
 \bibitem{siglip2}
 Tschannen, M., et~al.: {SigLIP} 2: Multilingual vision-language encoders.
   arXiv:2502.14786 (2025)
@@ -260,12 +224,6 @@ Wang, D., Shelhamer, E., Liu, S., et~al.: Tent: Fully test-time adaptation by
 Wortsman, M., Ilharco, G., Kim, J.W., et~al.: Robust fine-tuning of zero-shot
   models. In: IEEE/CVF Conference on Computer Vision and Pattern Recognition.
   pp. 7959--7971 (2022)
-
-\bibitem{zech2018}
-Zech, J.R., Badgeley, M.A., Liu, M., et~al.: Variable generalization
-  performance of a deep learning model to detect pneumonia in chest
-  radiographs: A cross-sectional study. PLOS Medicine  \textbf{15}(11),
-  e1002683 (2018)
 
 \bibitem{siglip}
 Zhai, X., Mustafa, B., Kolesnikov, A., Beyer, L.: Sigmoid loss for language
@@ -286,10 +244,6 @@ Zhang, S., Xu, Y., Usuyama, N., et~al.: A multimodal biomedical foundation
 Zhou, K., Yang, J., Loy, C.C., Liu, Z.: Learning to prompt for vision-language
   models. International Journal of Computer Vision  \textbf{130}(9),
   2337--2348 (2022)
-
-\bibitem{dael}
-Zhou, K., Yang, Y., Qiao, Y., Xiang, T.: Domain adaptive ensemble learning.
-  IEEE Transactions on Image Processing  \textbf{30},  8008--8018 (2021)
 
 \bibitem{retfound}
 Zhou, Y., Chia, M.A., Wagner, S.K., et~al.: A foundation model for
