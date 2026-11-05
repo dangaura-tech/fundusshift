@@ -4,7 +4,7 @@
 \usepackage[varvw]{newtxmath}
 \usepackage{graphicx,booktabs,longtable,xcolor,array}
 \usepackage[hidelinks]{hyperref}
-\hypersetup{pdfauthor={Dang Truong Minh Le},pdftitle={Supplementary Material: FundusShift and LOTUS}}
+\hypersetup{pdfauthor={Dang Truong Minh Le},pdftitle={Supplementary Material: The FundusShift Benchmark}}
 \renewcommand\thetable{S\arabic{table}}
 \renewcommand\thesection{S\arabic{section}}
 \renewcommand\thefigure{S\arabic{figure}}
@@ -13,14 +13,14 @@
 \newcommand{\G}[1]{\input{generated/supp/#1}}
 \newcommand{\reading}[1]{\par\noindent\textit{Reading.} #1\par\medskip}
 \begin{document}
-\title{Supplementary Material for ``FundusShift and LOTUS: Benchmarking and Improving Fundus Disease Classification at Unseen Sources''}
-\titlerunning{FundusShift and LOTUS: Supplementary Material}
+\title{Supplementary Material for ``When Fundus Classifiers Meet a New Source: The FundusShift Benchmark and a Low-Capacity Baseline''}
+\titlerunning{FundusShift: Supplementary Material}
 \author{Dang Truong Minh Le}
 \authorrunning{D. T. M. Le}
 \institute{Mohamed bin Zayed University of Artificial Intelligence, Abu Dhabi, United Arab Emirates\\ \email{dang.le@mbzuai.ac.ae}}
 \maketitle
 
-\noindent This supplement gives every table behind the main paper, plus analyses that did not fit there. All tables are generated from the saved results in the repository (\url{https://doi.org/10.5281/zenodo.23981813}) by \texttt{paper/latex/make\_assets.py}, \texttt{make\_supp.py} and \texttt{make\_supp\_extra.py}; LOTUS is the final method, and the \emph{initial design} is LOTUS with the between-site projection of the main paper (Sec.~5); numbers are means over seeds unless stated. Abbreviations: bAcc, balanced accuracy; Eq-src, mean of per-source bAcc; R/T/F, raw, temperature scaling (TS), focal temperature scaling (FTS); LP, linear probe; LAC, least-ambiguous conformal sets; SGR, selective guaranteed risk; FR, disease images answered normal, over all disease images; G$\to$N, glaucoma images accepted and predicted normal, over all glaucoma images.
+\noindent This supplement gives every table behind the main paper, plus analyses that did not fit there. All tables are generated from the saved results in the repository (\url{https://doi.org/10.5281/zenodo.23911966}) by \texttt{paper/latex/make\_assets.py}, \texttt{make\_supp.py} and \texttt{make\_supp\_extra.py}; LOTUS is the final method, and the \emph{initial design} is LOTUS with the between-site projection of the main paper (Sec.~5); numbers are means over seeds unless stated. Abbreviations: bAcc, balanced accuracy; Eq-src, mean of per-source bAcc; R/T/F, raw, temperature scaling (TS), focal temperature scaling (FTS); LP, linear probe; LAC, least-ambiguous conformal sets; SGR, selective guaranteed risk; FR, disease images answered normal, over all disease images; G$\to$N, glaucoma images accepted and predicted normal, over all glaucoma images.
 
 \setcounter{tocdepth}{2}
 \makeatletter\renewcommand*\l@section{\@dottedtocline{1}{0em}{2.6em}}\makeatother
@@ -587,7 +587,7 @@ Setting & Model & Clean & Blur & JPEG\\
 Encoder & MedSigLIP (patch 14, 448 px, 27 layers, width 1152), frozen\\
 Head input & Last hidden state, $32\times32$ tokens pooled to $14\times14$; fixed random orthonormal map to 384 dimensions (seed 0); grid mean\\
 Standardization & Per dimension, training-split mean and standard deviation\\
-Projection & None. Initial design only: within-class between-site means, at most 32 directions, fitted per head on its training rows\\
+Projection & None. Initial design only: within-class between-site means, at most 32 directions (their rank gives 11--13 per head, 14 on all development data), fitted per head on its training rows\\
 Heads & One linear head per development source, trained without it; 1,155 parameters each\\
 Training & Label smoothing 0.1; class-balanced sampling; AdamW, lr $3\times10^{-4}$, wd $10^{-2}$; batch 64; 12 epochs; best epoch by validation bAcc on the head's own sites\\
 Rescaling & Centre per image; divide by the standard deviation over validation rows\\
@@ -746,7 +746,7 @@ Arm & bAcc & Scope-aware bAcc & ECE & Recall G & N$\to$G, DR-only & N$\to$G, ful
 \end{table}
 {\scriptsize
 \begin{longtable}{@{}llrrlrrrr@{}}
-\caption{LOTUS thresholds from Cal-B against the leave-one-source-out reference, 50 rotations, with and without the normal certificate; Held: rotations where test risk stayed at or below 10\%. Here Cal-B is used whole; the main rotation table fits on one half of Cal-B and reads the other, so its LOTUS values differ in the third decimal.}\label{tab:cert}\\
+\caption{LOTUS thresholds from Cal-B against the leave-one-source-out reference, 50 rotations, with and without the normal certificate; Held: rotations where test risk stayed at or below 10\%. Cal-B is used whole, as in Table~9 of the paper (same values); the rotation table of the paper (Table~5) fits on one half of Cal-B and reads the other, so its LOTUS values differ in the third decimal.}\label{tab:cert}\\
 \toprule
 Fitted on & Target & Test cov. & Test risk & Held & FR & G$\to$N & Ch\'ak\d{s}u cov. & Ch\'ak\d{s}u risk\\
 \midrule\endfirsthead
@@ -805,15 +805,7 @@ Linear probe (pooled) & 0.746 & 0.084 & 0.750 & 0.182\\\bottomrule
 \begin{table}[h]\centering\scriptsize\caption{Head recipe ablation. Reference: smoothing 0.1, class-balanced resampling, 12 epochs, AdamW lr $3\cdot10^{-4}$, weight decay $10^{-2}$, best epoch by validation bAcc. Last column: rotations where the reference is higher.}\label{tab:recipe}
 \begin{tabular}{@{}lrrrrrr@{}}\toprule
 Variant & bAcc & $\Delta$ & ECE & NLL & Recall G & Ref.\ higher\\\midrule
-Reference & .786 & -- & .035 & .510 & .696 & --\\
-No class balancing & .764 & $-$.021 & .041 & .520 & .606 & 41/50\\
-lr $10^{-3}$ & .777 & $-$.009 & .037 & .511 & .657 & 39/50\\
-24 epochs & .779 & $-$.007 & .037 & .507 & .663 & 34/50\\
-Last epoch (no selection) & .784 & $-$.002 & .035 & .508 & .687 & 20/50\\
-Weight decay 0 & .785 & .000 & .035 & .510 & .696 & 21/50\\
-No smoothing & .786 & +.001 & .036 & .525 & .717 & 24/50\\
-Weight decay $10^{-1}$ & .786 & +.001 & .035 & .509 & .699 & 14/50\\
-4 epochs & .791 & +.006 & .034 & .523 & .741 & 20/50\\\bottomrule
+\G{s9_recipe.tex}
 \end{tabular}\end{table}
 \reading{Class-balanced resampling carries most of the recipe, mainly through recall G; less training (fewer steps, lower learning rate) helps, consistent with low capacity; smoothing and weight decay do not matter. The 4-epoch variant is better but was found after the fact and is not adopted.}
 
@@ -834,14 +826,7 @@ Images were cropped and resized as the benchmark images. Models: LOTUS and the i
 \cmidrule(lr){2-8}\cmidrule(l){9-12}
 Model & bAcc & Rec.\,D & FG & AUROC & Ref. & ECE & LAC & bAcc & Rec.\,G & FD & AUROC\\
 \midrule
-LOTUS & .689 & .754 & .140 & .823 & .948 & .058 & .745 & .323 & .061 & .388 & .500\\
-Initial design & .707 & .744 & .119 & .821 & .946 & .054 & .793 & .328 & .080 & .374 & .500\\
-MedSigLIP zero-shot & .663 & .652 & .132 & .747 & .895 & .031 & .867 & .274 & .162 & .494 & .504\\
-ConvNeXt-T, CE & .677 & .693 & .002 & .755 & .888 & .106 & .730 & .268 & .036 & .451 & .493\\
-ConvNeXt-T, Group DRO & .642 & .707 & .019 & .740 & .870 & .135 & .760 & .285 & .053 & .429 & .495\\
-Linear probe$^*$ & .665 & .804 & .145 & .833 & .951 & .123 & -- & .338 & .036 & -- & .486\\
-Linear probe + text$^*$ & .693 & .739 & .118 & .808 & .945 & .068 & -- & .315 & .074 & -- & .493\\
-\bottomrule
+\G{s10_ext.tex}
 \end{tabular}
 \end{table}
 
@@ -849,19 +834,10 @@ Linear probe + text$^*$ & .693 & .739 & .118 & .808 & .945 & .068 & -- & .315 & 
 \caption{External cohorts, further metrics (mean of 3 seeds). Spec./Sens.: at the Cal-B threshold on $p(\cdot)$ of the cohort's disease for 90\% and 95\% specificity (Cal-B specificity 0.899 for every model). Cov./Risk: at the 80\% coverage threshold. Published-test ECE for reference.}\label{tab:ext2}
 \begin{tabular}{@{}llrrrrrrrrrrrr@{}}\toprule
 Cohort & Model & Rec.\,N & D1 & D2 & D3 & D4 & Cov. & Risk & NLL & Sp.90 & Se.90 & Sp.95 & Se.95\\\midrule
-Messidor-2 & LOTUS & .625 & .421 & .935 & 1.00 & 1.00 & .503 & .154 & .740 & .737 & .824 & .889 & .724\\
- & Initial design & .670 & .399 & .931 & 1.00 & 1.00 & .573 & .169 & .704 & .722 & .832 & .879 & .725\\
- & Zero-shot & .675 & .263 & .844 & 1.00 & 1.00 & .665 & .243 & .770 & .866 & .669 & .952 & .568\\
- & ConvNeXt-T CE & .661 & .381 & .839 & .996 & 1.00 & .526 & .246 & .653 & .467 & .788 & .659 & .692\\
- & ConvNeXt-T GDRO & .578 & .425 & .836 & .987 & 1.00 & .599 & .303 & .742 & .538 & .748 & .691 & .649\\\midrule
-G1020 & LOTUS & .585 & & & & & .709 & .584 & 2.279 & .907 & .123 & .959 & .074\\
- & Initial design & .576 & & & & & .725 & .572 & 2.143 & .900 & .125 & .959 & .069\\
- & Zero-shot & .387 & & & & & .763 & .712 & 1.940 & .928 & .118 & .957 & .078\\
- & ConvNeXt-T CE & .501 & & & & & .688 & .652 & 2.807 & .662 & .358 & .773 & .240\\
- & ConvNeXt-T GDRO & .517 & & & & & .695 & .633 & 2.830 & .754 & .269 & .862 & .155\\\bottomrule
+\G{s10_ext2.tex}
 \end{tabular}\end{table}
 D1--D4: recall D by ICDR grade on Messidor-2 (mild DR is the hard grade for every model). Seed standard deviation of bAcc: LOTUS 0.011 (Messidor-2) and 0.005 (G1020); ConvNeXt-T 0.008--0.039. Paired bootstrap of bAcc (2,000 resamples, seed-averaged probabilities), LOTUS minus comparator: Messidor-2, initial design $-0.019$ [$-0.029$, $-0.009$], zero-shot +0.026 [0.008, 0.043], CE $-0.003$ [$-0.026$, 0.021], Group DRO +0.031 [0.007, 0.055]; G1020, initial design 0.000 [$-0.009$, 0.008], zero-shot +0.055, CE +0.052, Group DRO +0.043 (all intervals above 0), differences between models that all sit at chance AUROC.
-$^*$From \texttt{experiments/review\_baselines.py}: the linear probe of the rotations (class-weighted cross-entropy on pooled features), refit on the published split with seeds 0--2, alone and fused 1/2 + 1/2 with the same text scores as LOTUS; same TS and evaluation; LAC and FD were not computed for them. Paired bootstrap intervals use seed-averaged probabilities, so they need not equal differences of the seed-mean bAcc in the table.
+$^*$From \texttt{experiments/review\_baselines.py}: the linear probe of the rotations (class-weighted cross-entropy on pooled features), refit on the published split with seeds 0--2, alone and fused 1/2 + 1/2 with the same text scores as LOTUS; same TS and evaluation; LAC and FD were not computed for them. This probe reaches bAcc 0.791 on the published test split, above the validation-selected linear-probe representative (0.728, Table~7 of the paper), so it is a strong comparator. Paired bootstrap intervals use seed-averaged probabilities, so they need not equal differences of the seed-mean bAcc in the table.
 
 \textbf{Is G1020 learnable at all?} As a diagnostic (no model of the paper is changed), a logistic regression on the same frozen MedSigLIP tokens was trained and tested within each cohort by 5-fold cross-validation (5 repetitions, three regularization strengths; \texttt{experiments/external\_learnability.py}). Messidor-2 DR vs normal reached AUROC 0.89--0.93; G1020 glaucoma vs non-glaucoma reached 0.46--0.47. G1020's labels are therefore not recoverable from these image features even with in-cohort training; on inspection its non-glaucoma class includes eyes with other retinal findings, which explains the many DR predictions. G1020 is a test of label definition rather than of glaucoma transfer, and glaucoma transfer to non-Asian populations remains untested.
 \reading{DR transfers in ranking and calibration but not in decisions: normals are over-called, as glaucoma (14\% of all images predicted G) or DR, and coverage and LAC promises fail as at the test sources. The plain probe ranks DR as well as LOTUS but is worse calibrated; fused with text it matches LOTUS on Messidor-2.}
@@ -870,5 +846,5 @@ $^*$From \texttt{experiments/review\_baselines.py}: the linear probe of the rota
 
 \section{Reproducibility}\label{s:repro}
 \sloppy
-Code, saved result tables and this document are archived at \url{https://doi.org/10.5281/zenodo.23981813} (GitHub: \url{https://github.com/dangaura-tech/fundusshift}). The README maps each result to its script and table file. LOTUS and its ablation over the rotations and regions are produced by \texttt{experiments/revision\_runs.py} (saved in \texttt{results/revision}); its published-split evaluation and paired tests by \texttt{experiments/lotus\_eval.py}, its rotation promises by \texttt{experiments/lotus\_rotation.py}, the external cohorts by \texttt{experiments/external.py}, and its per-source and disease-level tables by \texttt{experiments/review\_tables.py} (saved in \texttt{results/lotus}). The evaluation protocol, including the selection rules written before each later attempt, is \texttt{docs/protocol.md}. The benchmark (images under their source licences, split table, leakage groups and duplicate lists) is public at \url{https://huggingface.co/datasets/le-dang1haha/FundusShift}; its \texttt{metadata/splits\_final.csv} is the exact split used here.
+Code, saved result tables and this document are archived at \url{https://doi.org/10.5281/zenodo.23911966} (GitHub: \url{https://github.com/dangaura-tech/fundusshift}). The README maps each result to its script and table file. LOTUS and its ablation over the rotations and regions are produced by \texttt{experiments/revision\_runs.py} (saved in \texttt{results/revision}); its published-split evaluation and paired tests by \texttt{experiments/lotus\_eval.py}, its rotation promises by \texttt{experiments/lotus\_rotation.py}, the external cohorts by \texttt{experiments/external.py}, and its per-source and disease-level tables by \texttt{experiments/review\_tables.py} (saved in \texttt{results/lotus}). The evaluation protocol, including the selection rules written before each later attempt, is \texttt{docs/protocol.md}. The benchmark (images under their source licences, split table, leakage groups and duplicate lists) is public at \url{https://huggingface.co/datasets/le-dang1haha/FundusShift}; its \texttt{metadata/splits\_final.csv} is the exact split used here.
 \end{document}

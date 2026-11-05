@@ -371,7 +371,7 @@ for n, s_, enc, sel in grp:
     q = m2[m2.setting.isin(s_)]
     txt += f"{n} & {enc} & {q[['setting','model','config']].drop_duplicates().shape[0]} & {len(q)} & {sel} \\\\\n"
 q = v[(v.setting == "mcq") & (v["view"] == "test") & (v.posthoc == "none")]
-txt += f"Multiple choice & 4 multimodal LLMs, e.g.~\\cite{{fundusr1}}, 6 option orders & {q.model.nunique()} & {len(q)} & none \\\\\n"
+txt += f"Multiple choice & 4 multimodal LLMs, e.g.~\\cite{{fundusr1}}, answers averaged over 6 option orders & {q.model.nunique()} & {len(q)} & none \\\\\n"
 write("tab_cover.tex", txt)
 print(txt); print(len(m2))
 

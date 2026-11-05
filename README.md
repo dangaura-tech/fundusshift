@@ -1,10 +1,10 @@
 # FundusShift and LOTUS
 
-[![DOI](https://zenodo.org/badge/1444002583.svg)](https://doi.org/10.5281/zenodo.23981813)
+[![DOI](https://zenodo.org/badge/1444002583.svg)](https://doi.org/10.5281/zenodo.23911966)
 
 Code, results and supplementary material for:
 
-> **FundusShift and LOTUS: Benchmarking and Improving Fundus Disease Classification at Unseen Sources.**
+> **When Fundus Classifiers Meet a New Source: The FundusShift Benchmark and a Low-Capacity Baseline.**
 > Dang Truong Minh Le, Mohamed bin Zayed University of Artificial Intelligence.
 
 **FundusShift** is a source-held-out benchmark of normal (N), diabetic retinopathy (D) and glaucoma (G) colour fundus photographs from fifteen public collections. It evaluates the accuracy and reliability (calibration, selective prediction, conformal sets) of 818 fine-tuned, frozen, prompt-based and domain-generalization configurations and four multimodal LLMs under one protocol, with 50 random source rotations.
