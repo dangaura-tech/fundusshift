@@ -1,6 +1,6 @@
 # FundusShift and LOTUS
 
-[![DOI](https://zenodo.org/badge/1444002583.svg)](https://doi.org/10.5281/zenodo.23911966)
+[![DOI](https://zenodo.org/badge/1444002583.svg)](https://doi.org/10.5281/zenodo.23979471)
 
 Code, results and supplementary material for:
 
