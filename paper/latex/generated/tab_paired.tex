@@ -1,0 +1,51 @@
+bAcc (raw) & 16-shot probe, MedSigLIP & .748 & +0.082 & [+0.067, +0.097] & 0.009 \\
+bAcc (raw) & Linear probe, MedSigLIP & .728 & +0.102 & [+0.088, +0.116] & 0.009 \\
+bAcc (raw) & Zero-shot, MedSigLIP & .709 & +0.122 & [+0.107, +0.136] & 0.009 \\
+bAcc (raw) & ERM, DINOv2 LoRA & .707 & +0.123 & [+0.107, +0.138] & 0.009 \\
+bAcc (raw) & Group DRO, ConvNeXt-T & .707 & +0.124 & [+0.109, +0.138] & 0.009 \\
+bAcc (raw) & Fine-tune (NLL rule), ConvNeXt-T & .677 & +0.154 & [+0.136, +0.170] & 0.009 \\
+bAcc (raw) & CORAL, ConvNeXt-T & .676 & +0.154 & [+0.137, +0.170] & 0.009 \\
+bAcc (raw) & SWAD, ConvNeXt-T & .672 & +0.158 & [+0.141, +0.175] & 0.009 \\
+bAcc (raw) & Fine-tune, Swin-T & .655 & +0.176 & [+0.157, +0.193] & 0.009 \\
+bAcc (raw) & WiSE-FT, SigLIP2-L & .634 & +0.196 & [+0.177, +0.214] & 0.009 \\
+bAcc (raw) & MLP probe, DINOv2-B & .598 & +0.232 & [+0.213, +0.250] & 0.009 \\
+bAcc (raw) & CoOp ctx-init, BiomedCLIP & .497 & +0.334 & [+0.315, +0.352] & 0.009 \\
+bAcc (raw) & CoOp + LP, SigLIP-B & .496 & +0.335 & [+0.316, +0.353] & 0.009 \\
+bAcc (raw) & Tip-Adapter-F, BiomedCLIP & .495 & +0.336 & [+0.315, +0.356] & 0.009 \\
+bAcc (raw) & CoOp, SigLIP-B & .491 & +0.339 & [+0.320, +0.357] & 0.009 \\
+bAcc (raw) & Tip-Adapter, BiomedCLIP & .478 & +0.352 & [+0.332, +0.373] & 0.009 \\
+\midrule
+ECE (TS) & Zero-shot, MedSigLIP & .032 & -0.002 & [-0.017, +0.013] & 0.799 \\
+ECE (TS) & 16-shot probe, MedSigLIP & .044 & -0.014 & [-0.026, -0.000] & 0.091 \\
+ECE (TS) & Linear probe, MedSigLIP & .079 & -0.050 & [-0.066, -0.028] & 0.009 \\
+ECE (TS) & Group DRO, ConvNeXt-T & .091 & -0.062 & [-0.078, -0.043] & 0.009 \\
+ECE (TS) & Tip-Adapter, BiomedCLIP & .091 & -0.062 & [-0.076, -0.044] & 0.009 \\
+ECE (TS) & ERM, DINOv2 LoRA & .115 & -0.086 & [-0.103, -0.066] & 0.009 \\
+ECE (TS) & Fine-tune (NLL rule), ConvNeXt-T & .133 & -0.104 & [-0.121, -0.081] & 0.009 \\
+ECE (TS) & CORAL, ConvNeXt-T & .136 & -0.107 & [-0.124, -0.084] & 0.009 \\
+ECE (TS) & SWAD, ConvNeXt-T & .139 & -0.109 & [-0.127, -0.087] & 0.009 \\
+ECE (TS) & Tip-Adapter-F, BiomedCLIP & .147 & -0.118 & [-0.135, -0.100] & 0.009 \\
+ECE (TS) & CoOp ctx-init, BiomedCLIP & .150 & -0.121 & [-0.140, -0.099] & 0.009 \\
+ECE (TS) & WiSE-FT, SigLIP2-L & .168 & -0.139 & [-0.156, -0.117] & 0.009 \\
+ECE (TS) & Fine-tune, Swin-T & .171 & -0.142 & [-0.158, -0.119] & 0.009 \\
+ECE (TS) & MLP probe, DINOv2-B & .172 & -0.143 & [-0.160, -0.119] & 0.009 \\
+ECE (TS) & CoOp, SigLIP-B & .175 & -0.146 & [-0.164, -0.124] & 0.009 \\
+ECE (TS) & CoOp + LP, SigLIP-B & .176 & -0.147 & [-0.164, -0.124] & 0.009 \\
+\midrule
+NLL (TS) & 16-shot probe, MedSigLIP & .644 & -0.187 & [-0.212, -0.162] & 0.009 \\
+NLL (TS) & Zero-shot, MedSigLIP & .690 & -0.234 & [-0.254, -0.214] & 0.009 \\
+NLL (TS) & Linear probe, MedSigLIP & .694 & -0.238 & [-0.271, -0.202] & 0.009 \\
+NLL (TS) & Group DRO, ConvNeXt-T & .926 & -0.469 & [-0.536, -0.405] & 0.009 \\
+NLL (TS) & ERM, DINOv2 LoRA & .944 & -0.487 & [-0.552, -0.430] & 0.009 \\
+NLL (TS) & CORAL, ConvNeXt-T & 1.005 & -0.549 & [-0.613, -0.487] & 0.009 \\
+NLL (TS) & Tip-Adapter, BiomedCLIP & 1.020 & -0.563 & [-0.592, -0.533] & 0.009 \\
+NLL (TS) & Fine-tune (NLL rule), ConvNeXt-T & 1.036 & -0.579 & [-0.650, -0.513] & 0.009 \\
+NLL (TS) & SWAD, ConvNeXt-T & 1.056 & -0.599 & [-0.672, -0.529] & 0.009 \\
+NLL (TS) & Tip-Adapter-F, BiomedCLIP & 1.099 & -0.643 & [-0.679, -0.608] & 0.009 \\
+NLL (TS) & Fine-tune, Swin-T & 1.174 & -0.717 & [-0.790, -0.645] & 0.009 \\
+NLL (TS) & CoOp + LP, SigLIP-B & 1.180 & -0.723 & [-0.777, -0.669] & 0.009 \\
+NLL (TS) & CoOp, SigLIP-B & 1.180 & -0.724 & [-0.776, -0.671] & 0.009 \\
+NLL (TS) & CoOp ctx-init, BiomedCLIP & 1.189 & -0.733 & [-0.789, -0.675] & 0.009 \\
+NLL (TS) & WiSE-FT, SigLIP2-L & 1.243 & -0.787 & [-0.863, -0.711] & 0.009 \\
+NLL (TS) & MLP probe, DINOv2-B & 1.259 & -0.802 & [-0.897, -0.708] & 0.009 \\
+\bottomrule

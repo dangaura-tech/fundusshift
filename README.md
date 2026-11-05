@@ -1,15 +1,19 @@
-# FundusShift and LANTERN
+# FundusShift and LOTUS
 
 [![DOI](https://zenodo.org/badge/1444002583.svg)](https://doi.org/10.5281/zenodo.23911966)
 
-Code and supplementary material for:
+Code, results and supplementary material for:
 
-> **FundusShift: Benchmarking Accuracy and Reliability of Fundus Disease Classification at Unseen Sources, and a Low-Capacity Remedy.**
+> **FundusShift and LOTUS: Benchmarking and Improving Fundus Disease Classification at Unseen Sources.**
 > Dang Truong Minh Le, Mohamed bin Zayed University of Artificial Intelligence.
 
-FundusShift is a source-held-out benchmark of normal (N), diabetic retinopathy (D) and glaucoma (G) colour fundus photographs from fifteen public collections. It evaluates accuracy and reliability (calibration, selective prediction, conformal sets) of fine-tuned, frozen, prompt-based and domain-generalization models under one protocol, with 50 random source rotations. LANTERN is a low-capacity method on a frozen MedSigLIP encoder: between-site nuisance projection, a bag of linear heads that each leave out one source, and fusion with zero-shot text scores.
+**FundusShift** is a source-held-out benchmark of normal (N), diabetic retinopathy (D) and glaucoma (G) colour fundus photographs from fifteen public collections. It evaluates the accuracy and reliability (calibration, selective prediction, conformal sets) of 818 fine-tuned, frozen, prompt-based and domain-generalization configurations and four multimodal LLMs under one protocol, with 50 random source rotations.
 
-**Supplementary material (PDF, 24 pages):** [view online](https://github.com/dangaura-tech/fundusshift/blob/main/paper/supplementary.pdf) · [download](https://github.com/dangaura-tech/fundusshift/raw/main/paper/supplementary.pdf)
+**LOTUS** (Leave-One-source-out Token heads Unified with zero-shot Scores) is a low-capacity method on a frozen MedSigLIP encoder: a bag of linear heads on mean patch tokens, each trained without one development source, fused with zero-shot text scores (about 8,000 trained parameters). Over the 50 rotations it reaches a balanced accuracy of 0.789 against 0.746 for the strongest probe, with an expected calibration error of 0.034 against 0.084. The *initial design* (LOTUS plus a between-site projection) is reported alongside it.
+
+**Paper (PDF, 15 pages):** [view online](https://github.com/dangaura-tech/fundusshift/blob/main/paper/main.pdf) · [download](https://github.com/dangaura-tech/fundusshift/raw/main/paper/main.pdf)
+
+**Supplementary material (PDF, 36 pages):** [view online](https://github.com/dangaura-tech/fundusshift/blob/main/paper/supplementary.pdf) · [download](https://github.com/dangaura-tech/fundusshift/raw/main/paper/supplementary.pdf)
 
 ## Repository layout
 
@@ -17,11 +21,12 @@ FundusShift is a source-held-out benchmark of normal (N), diabetic retinopathy (
 |---|---|
 | `fsbench/` | Benchmark construction: label mapping, manifest, duplicate and near-duplicate detection (vessel signature + NCC), leakage-grouped splits, audit, image processing |
 | `configs/` | Source catalogue and the released benchmark configuration |
-| `scripts/` | Download and extraction helpers for the public sources |
-| `baselines/`, `experiments/` | Feature extraction, all baselines, calibration, evaluation, statistics and LANTERN |
-| `results/` | Saved result tables behind every number in the paper (CSV; large tables gzipped) |
-| `paper/make_assets.py`, `paper/make_supp.py` | Rebuild every table and figure of the paper and of the supplementary material from `results/` |
-| `docs/` | Evaluation protocol, datasheet, frozen LANTERN configuration, pretraining-overlap and ethics checks |
+| `scripts/` | Download and extraction helpers for the public sources; `revision.sbatch` for the LOTUS runs on a SLURM cluster |
+| `baselines/`, `experiments/` | Feature extraction, all baselines, calibration, evaluation, statistics, LOTUS and its ablations |
+| `results/` | Saved result tables behind every number in the paper (CSV; large tables gzipped); LOTUS in `results/revision/` and `results/lotus/` |
+| `paper/main.pdf`, `paper/supplementary.pdf` | The paper and the supplementary material |
+| `paper/latex/` | LaTeX sources (`main.tex`, `supplementary.tex`, `refs.bib`), generated tables and figures, and the scripts that build them: `make_assets.py` (main paper), `make_supp.py` and `make_supp_extra.py` (supplement) |
+| `docs/` | Evaluation protocol, datasheet, frozen configuration of the initial design, pretraining-overlap and ethics checks |
 
 ## Installation
 
@@ -30,7 +35,7 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-GPU runs used Linux with one NVIDIA RTX 5000 Ada; LANTERN, the probes and all post-hoc analyses run on CPU from saved features. MedSigLIP and RETFound weights are gated: request access from their providers and point `FS_GATED` at the folder that holds them.
+GPU runs used Linux with one NVIDIA RTX 5000 Ada; LOTUS, the probes and all post-hoc analyses run on CPU from saved features. MedSigLIP and RETFound weights are gated: request access from their providers and point `FS_GATED` at the folder that holds them.
 
 ## Data
 
@@ -59,43 +64,55 @@ python -m experiments.full_eval --bench $DATA/bench --runs $DATA/runs --features
 python -m experiments.paired_tests --bench $DATA/bench --runs $DATA/runs --views results/full_eval/views.csv --out results/paired_tests
 ```
 
-**3. LANTERN** (configuration in `docs/proposed_frozen_config.json`)
+**3. Initial design** (configuration in `docs/proposed_frozen_config.json`)
 ```
 python -m experiments.top_dev_final fit --bench $DATA/bench --features $DATA/runs/features --zeroshot $DATA/runs/medsiglip --strata $DATA/strata --out $DATA/runs/top_dev
 python -m experiments.top_dev_final eval --bench $DATA/bench --runs $DATA/runs --out results/top_dev
 ```
 
-**4. Source rotations, ablation and promises**
+**4. Source rotations of the baselines, label scope and the development search**
 ```
 python -m experiments.supplement rotation --bench $DATA/bench --runs $DATA/runs --features $DATA/runs/features --out results/supplement
-python -m experiments.lantern_rotation --bench $DATA/bench --features $DATA/runs/features --zeroshot $DATA/runs/medsiglip --strata $DATA/strata --out results/lantern_rotation.csv
-python -m experiments.ablation_rotation --bench $DATA/bench --strata $DATA/strata --zeroshot $DATA/runs/medsiglip --out results/ablation_rotation
-python -m experiments.certify --bench $DATA/bench --strata $DATA/strata --zeroshot $DATA/runs/medsiglip --out results/certify
 python -m experiments.scope dev --bench $DATA/bench --strata $DATA/strata --zeroshot $DATA/runs/medsiglip --out results/scope
 ```
-`ablation_rotation` and `certify` accept `--worker i --workers k` to split the rotations across processes.
 
-**5. Tables and figures**
+**5. LOTUS: factorial ablation over the published split and the 50 rotations (three seeds), leave-one-region-out, and the leave-one-source-out reference.** On a SLURM cluster, `bash scripts/revision.sbatch submit` runs all three; otherwise:
 ```
-FS_DATA=$DATA python paper/make_assets.py   # main paper
-FS_DATA=$DATA python paper/make_supp.py     # supplementary material
+python -m experiments.revision_runs rotation --bench $DATA/bench --strata $DATA/strata --zeroshot $DATA/runs/medsiglip --out results/revision
+python -m experiments.revision_runs region --bench $DATA/bench --strata $DATA/strata --zeroshot $DATA/runs/medsiglip --features $DATA/runs/features --out results/revision
+python -m experiments.revision_runs certify --bench $DATA/bench --strata $DATA/strata --zeroshot $DATA/runs/medsiglip --out results/revision
+```
+Each accepts `--worker i --workers k`. Then copy the published-split logits into the runs folder and evaluate them:
+```
+mkdir -p $DATA/runs/lotus $DATA/runs/lantern
+for s in 0 1 2; do cp results/revision/final/no_projection_s$s.npy $DATA/runs/lotus/logits_s$s.npy; cp results/revision/final/full_s$s.npy $DATA/runs/lantern/logits_s$s.npy; done
+python -m experiments.lotus_eval --bench $DATA/bench --runs $DATA/runs --out results/lotus
+python -m experiments.lotus_rotation --bench $DATA/bench --logits results/revision/rot_logits --out results/lotus
+python -m experiments.review_tables --bench $DATA/bench --images $DATA/processed --runs $DATA/runs --out results/lotus/review --method-dir lotus --method-name LOTUS --fig-dir paper/latex/figures
+```
+
+**6. Tables, figures and PDFs**
+```
+FS_DATA=$DATA FS_RUNS=$DATA/runs python paper/latex/make_assets.py
+FS_DATA=$DATA python paper/latex/make_supp.py
+FS_DATA=$DATA FS_RUNS=$DATA/runs python paper/latex/make_supp_extra.py
+cd paper/latex && latexmk -pdf main.tex supplementary.tex
 ```
 
 ## Where each result comes from
 
 | Paper item | Script | Saved table |
 |---|---|---|
-| Benchmark results, reliability (Tables 5, 8; Figs. 2, 4) | `experiments/full_eval.py` | `results/full_eval/` |
-| Paired tests | `experiments/proposed_paired.py`, `experiments/paired_tests.py` | `results/last_reg/`, `results/paired_tests/` |
-| Rotations (Table 6, Fig. 3) | `experiments/supplement.py`, `experiments/lantern_rotation.py` | `results/supplement/rotation.csv`, `results/lantern_rotation.csv` |
-| Rotation ablation (Table 7) | `experiments/ablation_rotation.py` | `results/ablation_rotation/` |
-| Shift-aware reference (Table 9) | `experiments/certify.py` | `results/certify/` |
-| Development ablation and design search | `experiments/strata_gate*.py`, `experiments/rptoken.py` | `results/strata/` |
+| Benchmark results and baseline reliability (Tables 2, 7, 8; Fig. 2) | `experiments/full_eval.py` | `results/full_eval/` |
+| LOTUS on the published split, paired tests (Tables 7, 8) | `experiments/lotus_eval.py` | `results/lotus/` |
+| Rotations (Table 5, Fig. 3) | `experiments/supplement.py`, `experiments/revision_runs.py`, `experiments/lotus_rotation.py` | `results/supplement/rotation.csv`, `results/lotus/rotation_lotus.csv` |
+| Rotation ablation, seeds, glaucoma-source and region analyses (Table 6; Suppl. S6) | `experiments/revision_runs.py` | `results/revision/` |
+| Shift-aware reference (Table 9) | `experiments/revision_runs.py certify` | `results/revision/certify_no_projection/` |
+| Per-source, disease-level and scope tables, risk-coverage curves (Suppl. S4, S5) | `experiments/review_tables.py` | `results/lotus/review/` |
+| Development ablation and design search (Table 4; Suppl. S8) | `experiments/strata_gate*.py`, `experiments/rptoken.py` | `results/strata/` |
 | Label-scope analysis | `experiments/scope.py` | `results/scope/` |
-| Seeds over rotations, projection analysis, glaucoma-source analysis, ECE intervals | `experiments/ablation_rotation.py --seed`, `experiments/review_checks.py` | `results/ablation_rotation/`, `results/review/` |
-| Patch-level evidence maps | `experiments/evidence_maps.py` | figure in the supplementary material |
-| Site and disease probes, t-SNE of fine-tuned and frozen features | `experiments/site_probe.py` | `results/review/site_probe.csv` |
-
+| Projection analysis, site and disease probes | `experiments/review_checks.py`, `experiments/site_probe.py` | `results/review/` |
+| Patch-level evidence maps (initial design) | `experiments/evidence_maps.py` | figure in the supplementary material |
 
 ## Licence
 

@@ -1,0 +1,12 @@
+Fine-tuning & 13 CNN/ViT/RETFound~\cite{retfound} $\times$ 5 losses~\cite{mdca,mbls} & 65 & 195 & best epoch \\
+Fine-tuning, NLL rule & Sensitivity check & 2 & 6 & best epoch, NLL \\
+Linear probe & 25 encoders, 3 weightings, 5 losses & 375 & 1125 & best epoch \\
+MLP probe & Frozen encoders & 11 & 33 & best epoch \\
+16-shot probe & Frozen encoders, 16 per class & 125 & 375 & best epoch \\
+Zero-shot & Vision-language encoders, 3 prompt banks & 33 & 33 & prompt bank \\
+CoOp~\cite{coop} and variants & Vision-language encoders & 190 & 570 & fixed recipe \\
+Tip-Adapter~\cite{tip} & Vision-language encoders & 6 & 18 & $\alpha,\beta$, bank \\
+ERM, Group DRO~\cite{groupdro}, CORAL~\cite{coral}, SWAD~\cite{swad} & ConvNeXt-T~\cite{convnext}, DINOv2 LoRA~\cite{dinov2} & 7 & 21 & best epoch; SWAD: own rule \\
+WiSE-FT~\cite{wiseft} & Vision-language encoders & 4 & 12 & $\alpha$, checkpoint \\
+Multiple choice & 4 multimodal LLMs, e.g.~\cite{fundusr1}, 6 option orders & 4 & 4 & none \\
+\bottomrule
