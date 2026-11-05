@@ -800,7 +800,49 @@ Linear probe (pooled) & 0.746 & 0.084 & 0.750 & 0.182\\\bottomrule
 
 \textbf{Screening thresholds.} Thresholds on $P(G)$ set on Cal-B for 90\% specificity gave, over rotations, test specificity 0.837 and sensitivity 0.857 for LOTUS (probe: 0.789 and 0.860), but on Ch\'ak\d{s}u specificity 0.336 at sensitivity 0.954 (probe: 0.622 and 0.637). On the published split, 95\% specificity on Cal-B gave 0.882 on test with sensitivity 0.798 (probe 0.865 and 0.708). Specificity targets, like risk targets, do not hold at new sources and must be set locally.
 
+\section{External Cohorts}\label{s:ext}
+\textbf{Protocol.} Written on 5 November 2026, before any external image was scored (\texttt{docs/protocol\_external.md}; code \texttt{experiments/external.py}; results \texttt{results/external}).
+Messidor-2: 1,744 gradable images with adjudicated ICDR grades (Krause et al., Ophthalmology 2018) (public Hugging Face copy \texttt{sngsfydy/Messidor2}); grade 0 $\to$ N, 1--4 $\to$ D, as in the benchmark; its normals are DR-only normals. G1020: 1,020 images, 724 normal and 296 glaucoma ($\to$ G); no DR grading. Both are reported separately, never pooled, because class and source coincide within each.
+Images were cropped and resized as the benchmark images. Models: LOTUS and the initial design (seeds 0--2; heads refit with the original seeds on the published split; every benchmark logit matched \texttt{results/revision/final} exactly), MedSigLIP zero-shot, ConvNeXt-T with CE and with Group DRO (seeds 0--2, saved checkpoints). Feature extraction reproduced the stored arrays on 64 benchmark images (maximum absolute difference: mean tokens 0.0013, fp16 rounding; pooled features and zero-shot logits $<10^{-5}$; ConvNeXt logits $\le$ 0.026). Temperature on Cal-A; the 80\% coverage threshold and 90\% LAC quantile on the same half of Cal-B as in the paper; specificity thresholds on all of Cal-B.
+\textbf{Overlap.} Nearest benchmark image by pooled MedSigLIP cosine: at most 0.953 (Messidor-2) and 0.968 (G1020); no pair above 0.95 was a pHash near copy, so no image was removed. MedSigLIP's fundus pretraining data is EyePACS; neither cohort is listed.
+
+\begin{table}[h]
+\caption{External cohorts, frozen published-split models (mean of 3 seeds; zero-shot: 1), evaluated once after TS on Cal-A. Messidor-2: 1,017 N, 727 D (ICDR 1--4); G1020: 724 N, 296 G. FG/FD: share predicted as the class absent from the cohort. AUROC: disease vs normal ($1-p(\mathrm{N})$); Ref.: referable DR (ICDR $\ge$ 2).}\label{tab:ext}
+\centering\scriptsize\setlength{\tabcolsep}{2.8pt}
+\begin{tabular}{@{}lrrrrrrrrrrr@{}}
+\toprule
+& \multicolumn{7}{c}{Messidor-2 (France, DR)} & \multicolumn{4}{c}{G1020 (Germany, glaucoma)}\\
+\cmidrule(lr){2-8}\cmidrule(l){9-12}
+Model & bAcc & Rec.\,D & FG & AUROC & Ref. & ECE & LAC & bAcc & Rec.\,G & FD & AUROC\\
+\midrule
+LOTUS & .689 & .754 & .140 & .823 & .948 & .058 & .745 & .323 & .061 & .388 & .500\\
+Initial design & .707 & .744 & .119 & .821 & .946 & .054 & .793 & .328 & .080 & .374 & .500\\
+MedSigLIP zero-shot & .663 & .652 & .132 & .747 & .895 & .031 & .867 & .274 & .162 & .494 & .504\\
+ConvNeXt-T, CE & .677 & .693 & .002 & .755 & .888 & .106 & .730 & .268 & .036 & .451 & .493\\
+ConvNeXt-T, Group DRO & .642 & .707 & .019 & .740 & .870 & .135 & .760 & .285 & .053 & .429 & .495\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]\centering\scriptsize\setlength{\tabcolsep}{3pt}
+\caption{External cohorts, further metrics (mean of 3 seeds). Spec./Sens.: at the Cal-B threshold on $p(\cdot)$ of the cohort's disease for 90\% and 95\% specificity (Cal-B specificity 0.899 for every model). Cov./Risk: at the 80\% coverage threshold. Published-test ECE for reference.}\label{tab:ext2}
+\begin{tabular}{@{}llrrrrrrrrrrrr@{}}\toprule
+Cohort & Model & Rec.\,N & D1 & D2 & D3 & D4 & Cov. & Risk & NLL & Sp.90 & Se.90 & Sp.95 & Se.95\\\midrule
+Messidor-2 & LOTUS & .625 & .421 & .935 & 1.00 & 1.00 & .503 & .154 & .740 & .737 & .824 & .889 & .724\\
+ & Initial design & .670 & .399 & .931 & 1.00 & 1.00 & .573 & .169 & .704 & .722 & .832 & .879 & .725\\
+ & Zero-shot & .675 & .263 & .844 & 1.00 & 1.00 & .665 & .243 & .770 & .866 & .669 & .952 & .568\\
+ & ConvNeXt-T CE & .661 & .381 & .839 & .996 & 1.00 & .526 & .246 & .653 & .467 & .788 & .659 & .692\\
+ & ConvNeXt-T GDRO & .578 & .425 & .836 & .987 & 1.00 & .599 & .303 & .742 & .538 & .748 & .691 & .649\\\midrule
+G1020 & LOTUS & .585 & & & & & .709 & .584 & 2.279 & .907 & .123 & .959 & .074\\
+ & Initial design & .576 & & & & & .725 & .572 & 2.143 & .900 & .125 & .959 & .069\\
+ & Zero-shot & .387 & & & & & .763 & .712 & 1.940 & .928 & .118 & .957 & .078\\
+ & ConvNeXt-T CE & .501 & & & & & .688 & .652 & 2.807 & .662 & .358 & .773 & .240\\
+ & ConvNeXt-T GDRO & .517 & & & & & .695 & .633 & 2.830 & .754 & .269 & .862 & .155\\\bottomrule
+\end{tabular}\end{table}
+D1--D4: recall D by ICDR grade on Messidor-2 (mild DR is the hard grade for every model). Seed standard deviation of bAcc: LOTUS 0.011 (Messidor-2) and 0.005 (G1020); ConvNeXt-T 0.008--0.039. Paired bootstrap of bAcc (2,000 resamples, seed-averaged probabilities), LOTUS minus comparator: Messidor-2, initial design $-0.019$ [$-0.029$, $-0.009$], zero-shot +0.026 [0.008, 0.043], CE $-0.003$ [$-0.026$, 0.021], Group DRO +0.031 [0.007, 0.055]; G1020, initial design 0.000 [$-0.009$, 0.008], zero-shot +0.055, CE +0.052, Group DRO +0.043 (all intervals above 0), differences between models that all sit at chance AUROC.
+\reading{DR transfers: referable DR is ranked well and LOTUS stays calibrated, but normals are over-called, as glaucoma (14\% of all images predicted G) or DR, and coverage and LAC promises fail as at the test sources. Glaucoma does not transfer to G1020 for any model, frozen or fine-tuned; G1020 labels follow clinical diagnosis, and the G class learned from two Asian development sources should not be used on such a population.}
+
 \section{Reproducibility}\label{s:repro}
 \sloppy
-Code, saved result tables and this document are archived at \url{https://doi.org/10.5281/zenodo.23981813} (GitHub: \url{https://github.com/dangaura-tech/fundusshift}). The README maps each result to its script and table file. LOTUS and its ablation over the rotations and regions are produced by \texttt{experiments/revision\_runs.py} (saved in \texttt{results/revision}); its published-split evaluation and paired tests by \texttt{experiments/lotus\_eval.py}, its rotation promises by \texttt{experiments/lotus\_rotation.py}, and its per-source and disease-level tables by \texttt{experiments/review\_tables.py} (saved in \texttt{results/lotus}). The evaluation protocol, including the selection rules written before each later attempt, is \texttt{docs/protocol.md}. Images are obtained from their original publishers; split tables are available from the author on request.
+Code, saved result tables and this document are archived at \url{https://doi.org/10.5281/zenodo.23981813} (GitHub: \url{https://github.com/dangaura-tech/fundusshift}). The README maps each result to its script and table file. LOTUS and its ablation over the rotations and regions are produced by \texttt{experiments/revision\_runs.py} (saved in \texttt{results/revision}); its published-split evaluation and paired tests by \texttt{experiments/lotus\_eval.py}, its rotation promises by \texttt{experiments/lotus\_rotation.py}, the external cohorts by \texttt{experiments/external.py}, and its per-source and disease-level tables by \texttt{experiments/review\_tables.py} (saved in \texttt{results/lotus}). The evaluation protocol, including the selection rules written before each later attempt, is \texttt{docs/protocol.md}. Images are obtained from their original publishers; split tables are available from the author on request.
 \end{document}
