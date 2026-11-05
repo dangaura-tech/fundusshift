@@ -4,7 +4,7 @@
 \providecommand{\doi}[1]{https://doi.org/#1}
 
 \bibitem{hygd}
-Abramovich, O., Pizem, H., Fhima, J., et~al.: Hillel yaffe glaucoma dataset
+Abramovich, O., Pizem, H., Fhima, J., et~al.: {Hillel Yaffe} glaucoma dataset
   ({HYGD}): A gold-standard annotated fundus dataset for glaucoma detection.
   PhysioNet, version 1.1.0. \doi{10.13026/m92s-0z95}
 

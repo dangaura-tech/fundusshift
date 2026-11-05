@@ -23,6 +23,7 @@
 \noindent This supplement gives every table behind the main paper, plus analyses that did not fit there. All tables are generated from the saved results in the repository (\url{https://doi.org/10.5281/zenodo.23979471}) by \texttt{paper/latex/make\_assets.py}, \texttt{make\_supp.py} and \texttt{make\_supp\_extra.py}; LOTUS is the final method, and the \emph{initial design} is LOTUS with the between-site projection of the main paper (Sec.~5); numbers are means over seeds unless stated. Abbreviations: bAcc, balanced accuracy; Eq-src, mean of per-source bAcc; R/T/F, raw, temperature scaling (TS), focal temperature scaling (FTS); LP, linear probe; LAC, least-ambiguous conformal sets; SGR, selective guaranteed risk; FR, disease images answered normal, over all disease images; G$\to$N, glaucoma images accepted and predicted normal, over all glaucoma images.
 
 \setcounter{tocdepth}{2}
+\makeatletter\renewcommand*\l@section{\@dottedtocline{1}{0em}{2.6em}}\makeatother
 {\sloppy\tableofcontents}
 
 \section{Data}\label{s:data}
@@ -40,7 +41,7 @@ Source & Country & Scope & Licence & Train & Validation & Calibration & Test or 
 \midrule\endhead
 \G{s1_sources.tex}
 \end{longtable}}
-\reading{The development side holds 1,395 glaucoma training images, all from Bangladesh Eye (925) and GRAPE (470), whereas DR and normal images come from all seven sources. Six of seven development sources graded only DR. On the test side, only Paraguay is DR-only, HYGD is G-only and PALM is N-only, so per-source bAcc on those two reduces to one recall. These facts explain much of the glaucoma behaviour in the main paper.}
+\reading{The development side holds 1,395 glaucoma training images, all from Bangladesh Eye (925) and GRAPE (470), whereas DR and normal images come from the six sources other than GRAPE. Five of seven development sources graded only DR. On the test side, only Paraguay is DR-only, HYGD is G-only and PALM is N-only, so per-source bAcc on those two reduces to one recall. These facts explain much of the glaucoma behaviour in the main paper.}
 
 \subsection{Source hierarchy, patients and label scope}
 FundusShift holds out whole public \emph{collections} (sources), not hospitals. Table~\ref{tab:hier} gives the institution or country behind each collection, the number of patients where the source releases identifiers, the classes it contributes and what its ``normal'' label means. All but one collection come from a single institution or study; OIA-DDR pools 147 hospitals, so it is one development source with internal variety, not 147 held-out units. Each collection was also assigned an acquisition family (institution), and the audit of Sect.~\ref{s:leak} confirms that no family spans the development and test sides; RFMiD 2.0, from the same institution as IDRiD, is used only for duplicate checks.
@@ -53,7 +54,7 @@ Role & Source & Institution / country & Images & Patients & Classes & Normal mea
 \G{s1_hierarchy.tex}
 \end{tabular}
 \end{table}
-\reading{Six of seven development sources and one test source (Paraguay) graded DR only, so their normal images were never assessed for glaucoma. Only four test sources graded all three classes (AFIO, FIVES, HRF, PAPILA; with PAPILA N/G); Table~\ref{tab:scopesub} reports test bAcc restricted to them, and the label-scope experiment of Sect.~\ref{s:dev} tests treating DR-only normals as possibly glaucomatous. Because glaucoma appears in only two development sources, glaucoma results measure transfer from those two sites, and the rotations (Table~\ref{tab:gsrc}) show how they change with more glaucoma sources.}
+\reading{Five of seven development sources and one test source (Paraguay) graded DR only, so their normal images were never assessed for glaucoma. Only four test sources assessed their normal images for glaucoma (AFIO, FIVES, HRF, which graded all three classes, and PAPILA, which graded N and G); Table~\ref{tab:scopesub} reports test bAcc restricted to them, and the label-scope experiment of Sect.~\ref{s:dev} tests treating DR-only normals as possibly glaucomatous. Because glaucoma appears in only two development sources, glaucoma results measure transfer from those two sites, and the rotations (Table~\ref{tab:gsrc}) show how they change with more glaucoma sources.}
 
 \subsection{Image quality by source}
 \begin{table}[htbp]
@@ -237,7 +238,7 @@ Method & View & Disease & Sens. & Spec. & PPV & AUROC\\
 \reading{DR is detected well by every method (AUROC 0.93--0.96). Glaucoma separates the methods: LOTUS reaches AUROC 0.926 on test against 0.79--0.87 for the baselines. On Ch\'ak\d{s}u, fine-tuned and DG models detect almost no glaucoma (sensitivity 0.04--0.15); LOTUS has the highest specificity among methods that detect a meaningful share of glaucoma (0.866, sensitivity 0.561, PPV 0.404), whereas the initial design reached sensitivity 0.822 at specificity 0.688. Precision for glaucoma on Ch\'ak\d{s}u stays low for every method, because only 14\% of its images are glaucoma; the higher values of the linear probe and Group DRO (0.50--0.60) come with sensitivities below 0.05.}
 
 \begin{table}[htbp]
-\caption{Sensitivity to label scope and single-class sources: test bAcc on all sources, without the single-class HYGD and PALM, and on the four sources that graded all three classes (FIVES, PAPILA, HRF, AFIO; 1,180 images).}\label{tab:scopesub}\centering\scriptsize
+\caption{Sensitivity to label scope and single-class sources: test bAcc on all sources, without the single-class HYGD and PALM, and on the four sources that assessed normal images for glaucoma (AFIO, FIVES, HRF, PAPILA; 1,180 images).}\label{tab:scopesub}\centering\scriptsize
 \begin{tabular}{@{}lrrr@{}}
 \toprule
 Method & All test & Without single-class & Full-scope, multi-class\\
