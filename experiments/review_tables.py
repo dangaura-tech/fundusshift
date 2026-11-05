@@ -1,6 +1,7 @@
 """Further reviewer tables from saved logits on the published split: per-source accuracy, bAcc, macro-F1 and ECE; disease-level one-vs-rest metrics for D and G;
 a label-scope-compatible test subset; risk-coverage curves; and a gallery of LANTERN's errors.
 python -m experiments.review_tables --bench data/bench --images data/processed --runs runs --out results/review
+LOTUS: add --method-dir lotus --method-name LOTUS --fig-dir paper/latex/figures (the error gallery is skipped when --images does not exist).
 """
 import argparse
 from pathlib import Path
@@ -27,7 +28,11 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     for k in ["bench", "images", "runs", "out"]:
         ap.add_argument("--" + k, required=True)
+    ap.add_argument("--method-dir", default="top_dev/last_reg", help="folder under --runs with the method's logits_s{0,1,2}.npy")
+    ap.add_argument("--method-name", default="LANTERN")
+    ap.add_argument("--fig-dir", default="paper/figures")
     a = ap.parse_args(argv)
+    REPS[0] = (a.method_name, None)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     t, classes = load_table(a.bench)
@@ -38,7 +43,7 @@ def main(argv=None):
     for name, key in REPS:
         Ps = []
         for seed in range(3):
-            f = Path(a.runs) / "top_dev" / "last_reg" / f"logits_s{seed}.npy" if key is None else files.get((*key, seed))
+            f = Path(a.runs) / a.method_dir / f"logits_s{seed}.npy" if key is None else files.get((*key, seed))
             if f is None and seed == 0:
                 f = files.get((*key, 0))
             if f is None:
@@ -95,7 +100,7 @@ def main(argv=None):
             o = np.argsort(-conf)
             err = (P[m].argmax(1) != y[m])[o]
             cov = np.arange(1, len(o) + 1) / len(o)
-            ax.plot(cov, np.cumsum(err) / np.arange(1, len(o) + 1), color=col, lw=1.4 if name == "LANTERN" else .8, label=name)
+            ax.plot(cov, np.cumsum(err) / np.arange(1, len(o) + 1), color=col, lw=1.4 if name == a.method_name else .8, label=name)
             thr = coverage_threshold(P[cb].max(1), .8)
             acc = conf >= thr
             ax.scatter([acc.mean()], [(P[m].argmax(1) != y[m])[acc].mean()], color=col, s=10, zorder=4)
@@ -107,10 +112,13 @@ def main(argv=None):
         ax.spines[["top", "right"]].set_visible(False)
     axs[0].set_ylabel("Selective risk")
     axs[1].legend(frameon=False, fontsize=5.5, loc="upper left")
-    fig.savefig(Path("paper/figures/risk_coverage.pdf"), bbox_inches="tight")
+    fig.savefig(Path(a.fig_dir) / "risk_coverage.pdf", bbox_inches="tight")
 
-    # failure gallery: LANTERN seed 0, the most confident errors by type
-    P = probs["LANTERN"][0]
+    # failure gallery: the method's seed 0, the most confident errors by type
+    if not Path(a.images).exists():
+        print("no images: error gallery skipped")
+        return
+    P = probs[a.method_name][0]
     pred, conf = P.argmax(1), P.max(1)
     picks = []
     for tc, pc in [(2, 0), (2, 1), (0, 2), (1, 0), (0, 1), (1, 2)]:
@@ -134,7 +142,7 @@ def main(argv=None):
     for ax in axs.ravel()[len(picks):]:
         ax.axis("off")
     fig.subplots_adjust(wspace=.05, hspace=.35)
-    fig.savefig(Path("paper/figures/failures.pdf"), bbox_inches="tight", dpi=200)
+    fig.savefig(Path(a.fig_dir) / "failures.pdf", bbox_inches="tight", dpi=200)
     pd.DataFrame(rows).to_csv(out / "failures.csv", index=False)
     pd.set_option("display.width", 220)
     for f_ in ["per_source", "disease_level", "scope_subset"]:

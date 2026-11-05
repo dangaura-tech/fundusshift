@@ -16,18 +16,20 @@ from experiments.data import load_table
 from experiments.prompts import CUPL, NAMES, SINGLE, TEMPLATES
 
 DATA = os.environ.get("FS_DATA", "data")
-OUT = Path("paper/generated/supp")
+OUT = Path("paper/latex/generated/supp")
 OUT.mkdir(parents=True, exist_ok=True)
 t, classes = load_table(f"{DATA}/bench")
 SRC = {"afio_composite": "AFIO", "fives": "FIVES", "hrf": "HRF", "hygd": "HYGD", "palm": "PALM", "papila": "PAPILA", "paraguay_dr": "Paraguay", "bangladesh_eye": "Bangladesh Eye", "ddr": "OIA-DDR", "deepdrid": "DeepDRiD", "grape": "GRAPE", "idrid": "IDRiD", "jichi": "Jichi", "sustech_sysu": "SUSTech-SYSU", "chaksu": "Ch\\'ak\\d{s}u"}
-SET = {"16-shot-probe": "16-shot probe", "linear-probe": "Linear probe", "mlp-probe": "MLP probe", "zero-shot": "Zero-shot", "finetune": "Fine-tune", "finetune-nll": "Fine-tune, NLL rule", "erm": "ERM", "groupdro": "Group DRO", "coral": "CORAL", "swad": "SWAD", "wise-ft": "WiSE-FT", "coop": "CoOp", "coop-ctxinit": "CoOp ctx-init", "coop-lp": "CoOp + LP", "tip-adapter": "Tip-Adapter", "tip-adapter-f": "Tip-Adapter-F", "tip-adapter-acc": "Tip-Adapter (acc. rule)", "tip-adapter-f-acc": "Tip-Adapter-F (acc. rule)", "mcq": "Multiple choice", "proposed": "LANTERN"}
+SET = {"16-shot-probe": "16-shot probe", "linear-probe": "Linear probe", "mlp-probe": "MLP probe", "zero-shot": "Zero-shot", "finetune": "Fine-tune", "finetune-nll": "Fine-tune, NLL rule", "erm": "ERM", "groupdro": "Group DRO", "coral": "CORAL", "swad": "SWAD", "wise-ft": "WiSE-FT", "coop": "CoOp", "coop-ctxinit": "CoOp ctx-init", "coop-lp": "CoOp + LP", "tip-adapter": "Tip-Adapter", "tip-adapter-f": "Tip-Adapter-F", "tip-adapter-acc": "Tip-Adapter (acc. rule)", "tip-adapter-f-acc": "Tip-Adapter-F (acc. rule)", "mcq": "Multiple choice", "proposed": "LOTUS"}
 TEST = ["paraguay_dr", "hygd", "fives", "papila", "palm", "hrf", "afio_composite"]
 
 
 def f3(x):
     if x is None or (isinstance(x, float) and np.isnan(x)):
         return "--"
-    return (f"{x:.3f}"[1:] if 0 <= x < 1 else f"{x:.3f}".replace("-0.", "$-$.")) if abs(x) < 1 else f"{x:.2f}"
+    if abs(x) < 1 and round(abs(x), 3) < 1:  # 0.9995 <= |x| < 1 rounds to 1.000: print it as 1.00, not as ".000"
+        return f"{x:.3f}"[1:] if x >= 0 else f"{x:.3f}".replace("-0.", "$-$.")
+    return f"{x:.2f}"
 
 
 def esc(s):
@@ -42,11 +44,11 @@ def line(*cells):
     return " & ".join(cells) + " \\\\\n"
 
 
-v = pd.read_csv("results/full_eval/views.csv.gz", low_memory=False)
+v = pd.read_csv("results/full_eval/views.csv" if Path("results/full_eval/views.csv").exists() else "results/full_eval/views.csv.gz", low_memory=False)
 v["config"] = v.config.fillna("")
 v = v[~v.setting.str.endswith("+ens")]
-L = pd.read_csv("results/top_dev/views.csv", low_memory=False)
-L = L[(L.setting == "posthoc") & (L.config == "last_reg")].assign(setting="proposed", model="medsiglip_tokens")
+L = pd.read_csv("results/lotus/views.csv", low_memory=False)
+L = L[(L.setting == "posthoc") & (L.config == "lotus")].assign(setting="proposed", model="medsiglip_tokens")
 reps = pd.read_csv("results/paired_tests/representatives.csv")
 reps["config"] = reps.config.fillna("")
 
@@ -107,7 +109,7 @@ write("s3_all.tex", rows)
 
 
 def rep_frames():
-    out = [("LANTERN", L)]
+    out = [("LOTUS", L)]
     for r in reps.itertuples():
         if r.setting.endswith("-acc"):
             continue
@@ -130,16 +132,16 @@ write("s4_ece.tex", rows)
 # S5: reliability of representatives in all three states
 o = pd.read_csv("results/full_eval/ops.csv" if Path("results/full_eval/ops.csv").exists() else "results/full_eval/ops.csv.gz", low_memory=False)
 o["config"] = o.config.fillna("")
-oL = pd.read_csv("results/top_dev/ops.csv")
-oL = oL[(oL.config == "last_reg") & (oL.setting == "posthoc")]
+oL = pd.read_csv("results/lotus/ops.csv")
+oL = oL[(oL.config == "lotus") & (oL.setting == "posthoc")]
 c_ = pd.read_csv("results/full_eval/conformal.csv" if Path("results/full_eval/conformal.csv").exists() else "results/full_eval/conformal.csv.gz", low_memory=False)
 c_["config"] = c_.config.fillna("")
-cL = pd.read_csv("results/top_dev/conformal.csv")
-cL = cL[(cL.config == "last_reg") & (cL.setting == "posthoc")]
+cL = pd.read_csv("results/lotus/conformal.csv")
+cL = cL[(cL.config == "lotus") & (cL.setting == "posthoc")]
 rows, conf = [], []
 for r in [None] + [x for x in reps.itertuples() if not x.setting.endswith("-acc")]:
     if r is None:
-        oo, cc, n = oL, cL, "LANTERN"
+        oo, cc, n = oL, cL, "LOTUS"
     else:
         oo = o[(o.setting == r.setting) & (o.model == r.model) & (o.config == r.config)]
         cc = c_[(c_.setting == r.setting) & (c_.model == r.model) & (c_.config == r.config)]
@@ -183,19 +185,12 @@ write("s5_rank.tex", [line(esc(SET.get(r.setting, r.setting)) if r.setting != "A
 # S6: rotations, discrimination, ceiling, sources, curve
 rot = pd.read_csv("results/supplement/rotation.csv")
 rot = rot[rot.split > 0]
-lr = pd.read_csv("results/lantern_rotation.csv")
-lr = lr[lr.split > 0]
+lr = pd.read_csv("results/lotus/rotation_lotus.csv")
 rows = []
-for n, q in [("LANTERN", lr)] + [(f"{esc(m_)}, {'16-shot' if k == '16_shot' else 'full'}", rot[(rot.model == m_) & (rot.kind == k)]) for m_ in ["medsiglip", "dinov2_b14", "siglip2_l16", "convnext_t"] for k in ["full_class", "16_shot"]]:
+for n, q in [("LOTUS", lr)] + [(f"{esc(m_)}, {'16-shot' if k == '16_shot' else 'full'}", rot[(rot.model == m_) & (rot.kind == k)]) for m_ in ["medsiglip", "dinov2_b14", "siglip2_l16", "convnext_t"] for k in ["full_class", "16_shot"]]:
     rows.append(line(n, f3(q.val_bacc.mean()), f3(q.test_bacc.mean()), f3(q.test_bacc.quantile(.05)) + "--" + f3(q.test_bacc.quantile(.95)), f3(q.test_bacc_source_equal.mean()), f3(q.recall_G.mean()), f3(q.ece_raw.mean()), f3(q.ece_ts.mean()), f3(q.risk_internal.mean()) + "$\\to$" + f3(q.risk_test.mean()), f3(q.lac_internal.mean()) + "$\\to$" + f3(q.lac_test.mean()), f3(q.cov_internal.mean()) + "$\\to$" + f3(q.cov_test.mean())))
 write("s6_rotation.tex", rows)
-ab = pd.concat([pd.read_csv(f_) for f_ in glob.glob("results/ablation_rotation/w*.csv")])
-ab = ab[ab.split > 0]
-rows = []
-for k, n in [("full", "LANTERN"), ("no_projection", "without projection"), ("no_bag", "without bag"), ("no_text", "without text"), ("single_head", "single head only"), ("text_only", "text only")]:
-    q = ab[ab.arm == k]
-    rows.append(line(n, f3(q.test_bacc.mean()), f3(q.test_bacc.std()), f3(q.test_bacc_source_equal.mean()), f3(q.recall_N.mean()), f3(q.recall_D.mean()), f3(q.recall_G.mean()), f3(q.false_G.mean()), f3(q.ece_ts.mean()), f3(q.chaksu_bacc.mean())))
-write("s6_ablation.tex", rows)
+# the rotation ablation (s6_factorial) and the seed table (s6_seeds) are built by make_supp_extra.py from results/revision
 db = pd.read_csv("results/supplement/discrim_boot.csv")
 write("s6_discrim.tex", [line(esc(r.pair).replace("\\_", "--"), esc(SET.get(r.a, r.a)), esc(SET.get(r.b, r.b)), str(r.n_sources), f3(r.auroc_a), f3(r.auroc_b), f"{r.diff:+.3f}", f"[{r.lo:+.3f}, {r.hi:+.3f}]") for r in db.itertuples()])
 ce_ = pd.read_csv("results/supplement/ceiling.csv")
@@ -285,7 +280,7 @@ for (s, m_), q in dr.groupby(["setting", "model"], sort=False):
 write("s7_grade.tex", rows)
 print("grades", sorted(dr.grade.unique()))
 
-# S8: LANTERN development
+# S8: development of the method (initial design, with projection)
 g7 = pd.read_csv("results/strata/gate7.csv")
 rows = []
 for arm, q in g7.groupby("arm"):
@@ -318,57 +313,19 @@ se, ss = pd.read_csv("results/scope/rotation_exact.csv"), pd.read_csv("results/s
 for n, q in [("exact (rotations)", se[se.split > 0]), ("scope (rotations)", ss[ss.split > 0])]:
     rows.append(line(n, f3(q.test_bacc.mean()), f3(q.test_bacc_scope.mean()), f3(q.ece_ts.mean()), f3(q.recall_G.mean()), "--", f3(q.NtoG_full.mean())))
 write("s8_scope.tex", rows)
-c1 = pd.concat([pd.read_csv(f_) for f_ in glob.glob("results/certify/rot_w*.csv")])
-c2 = pd.concat([pd.read_csv(f_) for f_ in glob.glob("results/certify/rot2_w*.csv")])
-c1, c2 = c1[c1.split > 0], c2[c2.split > 0]
-rows = []
-for arm, nm in [("calB", "Cal-B"), ("loso", "LOSO reference")]:
-    for cert in ["", "_cert"]:
-        for tgt, d_ in [("c80", c1), ("c90", c1), ("r10", c2)]:
-            p = f"{arm}_{tgt}{cert}"
-            rows.append(line(nm + (" + cert." if cert else ""), {"c80": "cov. .80", "c90": "cov. .90", "r10": "risk .10"}[tgt], f3(d_[f"{p}_test_cov"].mean()), f3(d_[f"{p}_test_risk"].mean()), f3(d_[f"{p}_test_fr"].mean()), f3(d_[f"{p}_test_GtoN"].mean()), f3(d_[f"{p}_chaksu_cov"].mean()), f3(d_[f"{p}_chaksu_risk"].mean())))
-write("s8_cert.tex", rows)
+# s8_cert, s6_gsrc and s4_ececi (LOTUS) are built by make_supp_extra.py
 print("[ok supp]")
 
 # Reviewer checks
 pj = pd.read_csv("results/review/projection.csv")
 write("s6_projection.tex", [line("none (all)" if r.left_out == "none" else SRC[r.left_out], str(int(r.k)), f3(r.ND_removed), f3(r.NG_removed), f3(r.DG_removed), f3(r.NG_removed_random), f3(r.cos_Gsite_NG) if not pd.isna(r.cos_Gsite_NG) else "--") for r in pj.itertuples()])
-gs = pd.read_csv("results/review/glaucoma_sources.csv")
-write("s6_gsrc.tex", [line(r.method, str(int(r.g_dev_sources)), str(int(r.rotations)), f3(r.recall_G), f3(r.test_bacc)) for r in gs.itertuples()])
-ec = pd.read_csv("results/review/ece_ci.csv")
-write("s4_ececi.tex", [line(SRC[r.source], f"{int(r.n):,}", f"{int(r.groups):,}", f3(r.ece_ts), f"[{f3(r.lo)}, {f3(r.hi)}]") for r in ec.itertuples()])
-seeds = sorted(glob.glob("results/ablation_rotation/seed*_w*.csv"))
-if seeds:
-    s0 = pd.concat([pd.read_csv(f_) for f_ in glob.glob("results/ablation_rotation/w*.csv")]).assign(seed=0)
-    sx = pd.concat([s0] + [pd.read_csv(f_) for f_ in seeds])
-    sx = sx[sx.split > 0]
-    lp0 = pd.read_csv("results/supplement/rotation.csv")
-    lp0 = lp0[(lp0.model == "medsiglip") & (lp0.kind == "full_class") & (lp0.split > 0)].assign(seed=0, arm="lp")
-    lpx = pd.read_csv("results/supplement/rotation_lp_seeds.csv") if Path("results/supplement/rotation_lp_seeds.csv").exists() else lp0.iloc[:0]
-    sx = pd.concat([sx, lp0, lpx[lpx.split > 0].assign(arm="lp")], ignore_index=True)
-    full = sx[sx.arm == "full"].groupby("split").test_bacc.mean()
-    rows = []
-    for arm, n in [("full", "LANTERN"), ("no_projection", "without projection"), ("no_bag", "without bag"), ("no_text", "without text"), ("text_only", "text only"), ("lp", "MedSigLIP linear probe")]:
-        q = sx[sx.arm == arm]
-        complete = q.groupby("split").seed.nunique()
-        q = q[q.split.isin(complete[complete == 3].index)]
-        if not len(q):
-            continue
-        per_split = q.groupby("split").test_bacc
-        m_ = per_split.mean()
-        common = full.index.intersection(m_.index)
-        d_ = (full[common] - m_[common])
-        tail = "-- & --" if arm == "full" else f"{d_.mean():+.3f} $\\pm$ {d_.std():.3f} & {int((d_ > 0).sum())}/{len(common)}"
-        rows.append(line(n, str(q.split.nunique()), f3(m_.mean()) + " $\\pm$ " + f3(m_.std()), f3(per_split.std().mean()), f3(q.groupby("split").ece_ts.mean().mean()), f3(q.groupby("split").recall_G.mean().mean()), tail))
-    write("s6_seeds.tex", rows)
-    print("".join(rows))
-ps_ = pd.read_csv("results/review/per_source.csv")
+ps_ = pd.read_csv("results/lotus/review/per_source.csv")
 write("s4_persource_full.tex", [line(r.method if i % 8 == 0 else "", SRC[r.source] + ("$^\\ast$" if "/" not in r.classes else ""), f"{int(r.n):,}", r.classes, f3(r.acc), f3(r.bacc), f3(r.macro_f1), f3(r.ece_ts)) for i, r in enumerate(ps_.itertuples())])
-dl = pd.read_csv("results/review/disease_level.csv")
+dl = pd.read_csv("results/lotus/review/disease_level.csv")
 write("s4_disease.tex", [line(r.method, "Test" if r.view == "test" else "Ch\\'ak\\d{s}u", r.disease, f3(r.sensitivity), f3(r.specificity), f3(r.ppv), f3(r.auroc)) for r in dl.itertuples()])
-sc_ = pd.read_csv("results/review/scope_subset.csv")
+sc_ = pd.read_csv("results/lotus/review/scope_subset.csv")
 write("s4_scope.tex", [line(r.method, f3(r.all_test), f3(r.without_single_class), f3(r.multiclass_full_scope)) for r in sc_.itertuples()])
 print("[ok review]")
 sp_ = pd.read_csv("results/review/site_probe.csv")
-write("s6_siteprobe.tex", [line(esc(r.features), r.view, f"{int(r.n):,}", f3(r.disease), f3(r.site_all), f3(r.site_within_N), f3(r.site_within_D)) for r in sp_.itertuples()])
+write("s6_siteprobe.tex", [line(esc(r.features).replace("Frozen MedSigLIP tokens (LANTERN input)", "Frozen MedSigLIP tokens (LOTUS input)").replace("LANTERN input after projection", "Tokens after projection (initial design)"), r.view, f"{int(r.n):,}", f3(r.disease), f3(r.site_all), f3(r.site_within_N), f3(r.site_within_D)) for r in sp_.itertuples()])
 print("[ok site]")

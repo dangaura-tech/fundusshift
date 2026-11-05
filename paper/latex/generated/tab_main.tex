@@ -1,0 +1,22 @@
+\textbf{LOTUS (ours)} & .848 & .830 & .748 & .939 & .832 & .905 & .755 & .201 & .029 & .457 & .695 & .561 \\
++ projection (initial design) & .824 & .815 & .723 & .932 & .789 & .904 & .753 & .175 & .019 & .482 & .733 & .822 \\
+\midrule
+16-shot probe, MedSigLIP~\cite{medgemma} & .802 & .748 & .683 & .915 & .555 & .906 & .783 & .096 & .044 & .644 & .675 & .752 \\
+Linear probe, MedSigLIP~\cite{medgemma} & .920 & .728 & .654 & .896 & .800 & .896 & .488 & .024 & .079 & .694 & .347 & .011 \\
+Zero-shot, MedSigLIP~\cite{medgemma} & .650 & .709 & .606 & .862 & .594 & .850 & .682 & .207 & .032 & .690 & .615 & .904 \\
+ERM, DINOv2 LoRA~\cite{dinov2} & .857 & .707 & .646 & .868 & .620 & .899 & .603 & .154 & .115 & .944 & .419 & .148 \\
+Group DRO~\cite{groupdro}, ConvNeXt-T~\cite{convnext} & .849 & .707 & .649 & .889 & .806 & .871 & .443 & .082 & .091 & .926 & .417 & .045 \\
+Fine-tune (NLL rule), ConvNeXt-T~\cite{convnext} & .870 & .677 & .619 & .864 & .720 & .883 & .426 & .185 & .133 & 1.036 & .324 & .041 \\
+CORAL~\cite{coral}, ConvNeXt-T~\cite{convnext} & .883 & .676 & .623 & .857 & .729 & .880 & .419 & .198 & .136 & 1.005 & .349 & .034 \\
+SWAD~\cite{swad}, ConvNeXt-T~\cite{convnext} & .883 & .672 & .622 & .866 & .726 & .887 & .404 & .208 & .139 & 1.056 & .309 & .014 \\
+Fine-tune, Swin-T~\cite{swin} & .893 & .655 & .600 & .839 & .655 & .898 & .411 & .223 & .171 & 1.174 & .298 & .037 \\
+WiSE-FT~\cite{wiseft}, SigLIP2-L~\cite{siglip2} & .886 & .634 & .587 & .825 & .615 & .871 & .417 & .236 & .168 & 1.243 & .406 & .094 \\
+MLP probe, DINOv2-B~\cite{dinov2} & .870 & .598 & .524 & .807 & .694 & .841 & .260 & .263 & .172 & 1.259 & .318 & .055 \\
+CoOp ctx-init~\cite{coop}, BiomedCLIP~\cite{biomedclip} & .642 & .497 & .447 & .685 & .540 & .842 & .109 & .287 & .150 & 1.189 & .384 & .064 \\
+CoOp + LP~\cite{coop}, SigLIP-B~\cite{siglip} & .668 & .496 & .463 & .713 & .493 & .814 & .180 & .243 & .176 & 1.180 & .314 & .262 \\
+Tip-Adapter-F~\cite{tip}, BiomedCLIP~\cite{biomedclip} & .666 & .495 & .453 & .682 & .303 & .770 & .412 & .225 & .147 & 1.099 & .532 & .471 \\
+CoOp~\cite{coop}, SigLIP-B~\cite{siglip} & .660 & .491 & .458 & .706 & .482 & .803 & .189 & .236 & .175 & 1.180 & .318 & .255 \\
+Tip-Adapter~\cite{tip}, BiomedCLIP~\cite{biomedclip} & .597 & .478 & .491 & .674 & .293 & .396 & .745 & .332 & .091 & 1.020 & .617 & .758 \\
+\midrule
+16-shot probe, FLAIR~\cite{flair}$^\dagger$ & .809 & .750 & .684 & .857 & .662 & .882 & .707 & .134 & .128 & .915 & .683 & .686 \\
+\bottomrule
