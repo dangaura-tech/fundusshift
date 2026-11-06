@@ -4,7 +4,7 @@
 
 Code, results and supplementary material for:
 
-> **When Fundus Classifiers Meet a New Source: The FundusShift Benchmark and a Low-Capacity Baseline.**
+> **FundusShift: A Benchmark for Accuracy and Calibration of Fundus Classifiers under Source Shift.**
 > Dang Truong Minh Le, Mohamed bin Zayed University of Artificial Intelligence.
 
 **FundusShift** is a source-held-out benchmark of normal (N), diabetic retinopathy (D) and glaucoma (G) colour fundus photographs from fifteen public collections. It evaluates the accuracy and reliability (calibration, selective prediction, conformal sets) of 818 fine-tuned, frozen, prompt-based and domain-generalization configurations and four multimodal LLMs under one protocol, with 50 random source rotations.
